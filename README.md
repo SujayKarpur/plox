@@ -1,2 +1,2 @@
 # plox
-python implementation of the Lox programming language 
+python implementation of the [Lox](https://craftinginterpreters.com/the-lox-language.html) programming language 
