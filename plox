@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+
+import sys 
+#import lexer
+
+error_flag = False 
+
+def run(string):
+    print(f'RUNNING {string}........')
+
+def run_prompt():
+    print('Welcome to pLox!\n')
+    _previous = 'not a blank string'
+    try:
+        while True: 
+            print('lox> ', end='')
+            line = input()
+            if line == '':
+                if _previous == '':
+                    print('\nExiting plox......')
+                    break 
+                _previous = ''
+            else:
+                _previous = line
+                run(line)
+                global error_flag
+                error_flag = False 
+    except EOFError:
+        print('\n\nExiting plox......')
+
+
+
+def run_file(file):
+    f = open(file, 'r')
+    contents = f.read()
+    run(contents)
+    if error_flag:
+        sys.exit()
+
+
+
+def report(line, where, message):
+    print("[line " + line + "] Error" + where + ": " + message)
+    global error_flag 
+    error_flag = True 
+
+def error(line, message):
+    report(line, "", message)
+
+
+def main():
+    if len(sys.argv) == 1:
+        run_prompt()
+    elif len(sys.argv) == 2:
+        run_file(sys.argv[1])
+    else:
+        print('usage : plox [script]')
+        sys.exit() 
+
+if __name__ == '__main__':
+    main()
