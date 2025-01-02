@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 
+
+#standard library imports
 import sys 
-#import lexer
+import curses
+
+#project files
+import errors
+import lexer
 
 error_flag = False 
 
 def run(string):
-    print(f'RUNNING {string}........')
+    print(lexer.lex(string, True))
 
 def run_prompt():
     print('Welcome to pLox!\n')
@@ -22,7 +28,7 @@ def run_prompt():
                 _previous = ''
             else:
                 _previous = line
-                run(line)
+                run(line+'\n')
                 global error_flag
                 error_flag = False 
     except EOFError:
