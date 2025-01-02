@@ -4,11 +4,11 @@ import tokens
 
 def lex(string, verbose=True):
     lexer_position = 0 
-    lexer_row = lexer_column = 0 
+    tokens.lexer_row = tokens.lexer_column = 0 
     lexed_tokens = [] 
     max_position = len(string)
     while lexer_position < max_position:
-        new_token, forward_position = tokens.TokenType.match(string, lexer_position, lexer_row, lexer_column)
+        new_token, forward_position = tokens.TokenType.match(string, lexer_position, tokens.lexer_row, tokens.lexer_column)
         lexer_position += forward_position
         lexed_tokens.append(new_token)
     if not verbose: 

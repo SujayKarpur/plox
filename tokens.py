@@ -3,12 +3,14 @@ import re
 import enum 
 
 KEYWORDS = {'and', 'class', 'else', 'false', 'fun', 'for', 'if', 'nil', 'or', 'print', 'return', 'scan', 'super', 'this', 'true', 'var', 'while'}
+#global vars: 
+lexer_row = lexer_column = 0
 
 class TokenType(enum.Enum):
     #EOF = 0 
     COMMENT = r'//.*\n'
     MULTI_LINE_COMMENT = r'/\*(.|\n)*\*/'
-    
+
     LEFT_PAREN = r'\('
     RIGHT_PAREN = r'\)'
     LEFT_BRACE = r'\{'
@@ -94,17 +96,16 @@ class Token:
 
 
 def actions(token: Token) -> None:
+    global lexer_row, lexer_column
     match token.type:
         case TokenType.NEWLINE.name:
-            global lexer_row
-            lexer_row = lexer_row + 1
-            global lexer_column
-            lexer_column = 0 
+            lexer_column = 0
+            lexer_row += 1
         case TokenType.STRING.name:
             token.value = token.value[1:-1]
         case TokenType.NUMBER.name:
             token.value = float(token.value)
         case TokenType.UNRECOGNIZABLE.name:
-            print(f'ERROR: INVALID TOKEN {token.value}') 
+            errors.error(lexer_row, f"unexpected character : {token.value}")
         case _: 
             pass 

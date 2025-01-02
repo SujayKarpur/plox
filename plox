@@ -9,7 +9,6 @@ import curses
 import errors
 import lexer
 
-error_flag = False 
 
 def run(string):
     print(lexer.lex(string, True))
@@ -29,8 +28,7 @@ def run_prompt():
             else:
                 _previous = line
                 run(line+'\n')
-                global error_flag
-                error_flag = False 
+                errors.error_flag = False 
     except EOFError:
         print('\n\nExiting plox......')
 
@@ -40,18 +38,10 @@ def run_file(file):
     f = open(file, 'r')
     contents = f.read()
     run(contents)
-    if error_flag:
+    if errors.error_flag:
         sys.exit()
 
 
-
-def report(line, where, message):
-    print("[line " + line + "] Error" + where + ": " + message)
-    global error_flag 
-    error_flag = True 
-
-def error(line, message):
-    report(line, "", message)
 
 
 def main():
