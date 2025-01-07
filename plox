@@ -11,7 +11,7 @@ import lexer
 
 
 def run(string):
-    print(lexer.lex(string, True))
+    print(lexer.lex(string))
 
 def run_prompt():
     print('Welcome to pLox!\n')

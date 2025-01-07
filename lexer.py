@@ -2,7 +2,7 @@ import errors
 import tokens 
 
 
-def lex(string, verbose=True):
+def lex(string, verbose=False):
     lexer_position = 0 
     tokens.lexer_row = tokens.lexer_column = 0 
     lexed_tokens = [] 

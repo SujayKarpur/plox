@@ -66,22 +66,22 @@ class TokenType(enum.Enum):
 
     @staticmethod
     def match(string, position, row, column):
-        for token in TokenType:
-            pattern = re.compile(token.value)
+        for tokentype in TokenType:
+            pattern = re.compile(tokentype.value)
             match = pattern.match(string, pos=position)
             if match:
                 matched_object = match.group()
-                if token == TokenType.IDENTIFIER:
+                if tokentype == TokenType.IDENTIFIER:
                     if matched_object in KEYWORDS:
                         continue 
-                new_token = Token(token, matched_object, position, row, column)
+                new_token = Token(tokentype, matched_object, position, row, column)
                 return (new_token, len(matched_object))
 
 
 
 class Token: 
 
-    def __init__(self, tokentype: TokenType, matched_object: str, position: int, row: int, column: int, ): #action 
+    def __init__(self, tokentype: TokenType, matched_object: str, position: int, row: int, column: int, ): 
         self.type = tokentype.name 
         self.value = matched_object
         self.position = position
