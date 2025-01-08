@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
 
-#standard library imports
 import sys 
-import curses
 
-#project files
 from lox import run_prompt, run_script
 
 
@@ -19,6 +16,8 @@ def main():
     else:
         print('usage : plox [script]')
         sys.exit() 
+
+
 
 if __name__ == '__main__':
     main()
