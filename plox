@@ -2,10 +2,7 @@
 
 
 import sys 
-
 from lox import run_prompt, run_script
-
-
 
 
 def main():
