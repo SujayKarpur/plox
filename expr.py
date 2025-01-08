@@ -37,21 +37,21 @@ class Binary(Expr):
     right : Expr  
 
     def accept(self, visitor: Visitor[R]) -> R:
-        visitor.visit_binary_expression(self)
+        return visitor.visit_binary_expression(visitor, self)
 
 @dataclass
 class Grouping(Expr):
     expression : Expr 
 
     def accept(self, visitor: Visitor[R]) -> R:
-        visitor.visit_grouping_expression(self)
+        return visitor.visit_grouping_expression(visitor, self)
 
 @dataclass
 class Literal(Expr):
     value : Any  
 
     def accept(self, visitor: Visitor[R]) -> R:
-        visitor.visit_literal_expression(self)
+        return visitor.visit_literal_expression(visitor, self)
 
 @dataclass
 class Unary(Expr):
@@ -59,4 +59,4 @@ class Unary(Expr):
     right : Expr  
 
     def accept(self, visitor: Visitor[R]) -> R:
-        visitor.visit_unary_expression(self)
+        return visitor.visit_unary_expression(visitor, self)
