@@ -6,49 +6,16 @@ import sys
 import curses
 
 #project files
-import errors
-import lexer
-
-
-def run(string):
-    print(lexer.lex(string))
-
-def run_prompt():
-    print('Welcome to pLox!\n')
-    _previous = 'not a blank string'
-    try:
-        while True: 
-            print('lox> ', end='')
-            line = input()
-            if line == '':
-                if _previous == '':
-                    print('\nExiting plox......')
-                    break 
-                _previous = ''
-            else:
-                _previous = line
-                run(line+'\n')
-                errors.error_flag = False 
-    except EOFError:
-        print('\n\nExiting plox......')
-
-
-
-def run_file(file):
-    f = open(file, 'r')
-    contents = f.read()
-    run(contents)
-    if errors.error_flag:
-        sys.exit()
+from lox import run_prompt, run_script
 
 
 
 
 def main():
     if len(sys.argv) == 1:
-        run_prompt()
+        run_prompt.run_prompt()
     elif len(sys.argv) == 2:
-        run_file(sys.argv[1])
+        run_script.run_script(sys.argv[1])
     else:
         print('usage : plox [script]')
         sys.exit() 
