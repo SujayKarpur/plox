@@ -12,7 +12,9 @@ from lox.expr import Visitor, Binary, Grouping, Literal, Unary
 class Interpreter(Visitor[Any]):
 
     def visit_binary_expression(self, expr : Binary) -> str: 
-        return tokens.OPERATIONS[expr.operator.type](expr.left.accept(Interpreter), expr.right.accept(Interpreter))
+        left = expr.left.accept(Interpreter)
+        right = expr.right.accept(Interpreter)
+        return tokens.OPERATIONS[expr.operator.type](left,right)
 
     def visit_grouping_expression(self, expr : Grouping) -> str:
         return expr.expression.accept(Interpreter) 
@@ -22,7 +24,8 @@ class Interpreter(Visitor[Any]):
 
     def visit_unary_expression(self, expr : Unary) -> str:
         if expr.operator.type == tokens.TokenType.BANG: 
-            return not expr.right.accept(Interpreter)
+            eval_temp = expr.right.accept(Interpreter)
+            return not eval_temp
         elif expr.operator.type == tokens.TokenType.MINUS:
             expr.right = expr.right.accept(Interpreter)
             if type(expr.right) == float: 

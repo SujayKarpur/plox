@@ -1,6 +1,7 @@
 import re 
 import enum 
 import operator
+import typing 
 
 from lox import state 
 from lox import errors 
@@ -32,7 +33,7 @@ class TokenType(enum.Enum):
     LESSER = r'<'
 
     IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*' 
-    STRING = r'"([^\\]*(\\(\\|n|t|\"))?[^\\]*)+"' 
+    STRING = r'"([^\\\"]*(\\(\\|n|t|\"))?[^\\\"]*)+"' 
     NUMBER = r'[0-9]+(\.[0-9]+)?' 
     #ARRAY = r''
 
@@ -108,17 +109,23 @@ def actions(token: Token) -> None:
             pass 
 
 
+def safify(fun : typing.Callable) -> typing.Callable:
+    if fun in {operator.add, operator.sub, operator.mul, operator.truediv}:
+        return lambda a, b : fun(a,b) if (type(a) == type(b) == float) else errors.report("RuntimeError", state.current_file_name, 1,1, f"Can't {a} {b}")
+    else:
+        return lambda a, b : fun(a,b) if (type(a) == type(b)) else errors.report("RuntimeError", state.current_file_name, 1,1, "Can't ")
+
 OPERATIONS = {
-                TokenType.PLUS: operator.add,
-                TokenType.MINUS: operator.sub,
-                TokenType.TIMES: operator.mul,
-                TokenType.DIVIDED_BY: operator.truediv,
-                TokenType.EQUAL_EQUAL: operator.eq,
-                TokenType.BANG_EQUAL: lambda x,y : x != y, 
-                TokenType.GREATER: operator.gt, 
-                TokenType.GREATER_EQUAL: operator.ge, 
-                TokenType.LESSER: operator.lt,
-                TokenType.LESSER_EQUAL: operator.le,
+                TokenType.PLUS: safify(operator.add),
+                TokenType.MINUS: safify(operator.sub),
+                TokenType.TIMES: safify(operator.mul),
+                TokenType.DIVIDED_BY: safify(operator.truediv),
+                TokenType.EQUAL_EQUAL: safify(operator.eq),
+                TokenType.BANG_EQUAL: safify(lambda x,y : x != y), 
+                TokenType.GREATER: safify(operator.gt), 
+                TokenType.GREATER_EQUAL: safify(operator.ge), 
+                TokenType.LESSER: safify(operator.lt),
+                TokenType.LESSER_EQUAL: safify(operator.le),
              }   
 
 UNARY_OPERATORS = {
