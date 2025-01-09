@@ -4,10 +4,19 @@ from lox import tokens
 from lox import errors
 from lox import state
 from lox.expr import Visitor, Binary, Grouping, Literal, Unary
+from lox import stmt 
 
+def loxify(f):
 
-
-
+    if f is True:
+        return "true"
+    elif f is False: 
+        return "false" 
+    elif f == None:
+        return "nil"
+    else:
+        return f 
+    
 
 class Interpreter(Visitor[Any]):
 
@@ -34,3 +43,11 @@ class Interpreter(Visitor[Any]):
                 errors.report("RuntimeError", state.current_file_name, 1, 1, "Can't negate a non-numeric value!")
         else: 
             return None 
+        
+class Statement_Interpreter(stmt.Visitor[Any]):
+    
+    def visit_print_statement(self, s : stmt.Print):
+        print(loxify(s.expression.accept(Interpreter))) 
+
+    def visit_expression_statement(self, s : stmt.Expression):
+        return s.expression.accept(Interpreter)  
