@@ -30,11 +30,11 @@ class Print(Stmt):
     expression : expr.Expr
 
     def accept(self, visitor: Visitor[R]):
-        visitor.visit_print_statement(visitor, self)
+        return visitor.visit_print_statement(visitor, self)
 
 @dataclass
 class Expression(Stmt):
     expression : expr.Expr 
 
     def accept(self, visitor: Visitor[R]):
-        visitor.visit_expression_statement(visitor, self)
+        return visitor.visit_expression_statement(visitor, self)

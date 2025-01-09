@@ -61,7 +61,7 @@ def parse_comparison(lexed_tokens: List[tokens.Token]) -> expr.Expr:
 
 def parse_term(lexed_tokens: List[tokens.Token]) -> expr.Expr:
     lhs = parse_factor(lexed_tokens) 
-    while not parser_end() and lexed_tokens[0].type in (tokens.TokenType.MINUS, tokens.TokenType.PLUS):
+    while not parser_end() and lexed_tokens[state.parser_position].type in (tokens.TokenType.MINUS, tokens.TokenType.PLUS):
         operator = lexed_tokens[state.parser_position]
         state.reset_parser(state.parser_position+1)
         rhs = parse_factor(lexed_tokens)
