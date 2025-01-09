@@ -20,6 +20,7 @@ This project is a treewalk interpreter for Lox, with a handcrafted lexer and rec
 - [ ] Improve Lexer error handling (print line containing error and show column)
 - [ ] Handle syntax errors
 - [ ] Handle runtime errors
+- [ ] Add support for ternary operator
 - [ ] Add support for non-expression statements
 - [ ] Add documentation and usage instructions
-- [ ] Add support for advanced features like function declarations.
+- [ ] Add constructs for functions and classes
