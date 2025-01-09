@@ -109,14 +109,25 @@ def actions(token: Token) -> None:
 
 
 OPERATIONS = {
-            TokenType.PLUS: operator.add,
-            TokenType.MINUS: operator.sub,
-            TokenType.TIMES: operator.mul,
-            TokenType.DIVIDED_BY: operator.truediv,
-            TokenType.EQUAL_EQUAL: operator.eq,
-            TokenType.BANG_EQUAL: lambda x,y : x != y, 
-            TokenType.GREATER: operator.gt, 
-            TokenType.GREATER_EQUAL: operator.ge, 
-            TokenType.LESSER: operator.lt,
-            TokenType.LESSER_EQUAL: operator.le,
-            }   
+                TokenType.PLUS: operator.add,
+                TokenType.MINUS: operator.sub,
+                TokenType.TIMES: operator.mul,
+                TokenType.DIVIDED_BY: operator.truediv,
+                TokenType.EQUAL_EQUAL: operator.eq,
+                TokenType.BANG_EQUAL: lambda x,y : x != y, 
+                TokenType.GREATER: operator.gt, 
+                TokenType.GREATER_EQUAL: operator.ge, 
+                TokenType.LESSER: operator.lt,
+                TokenType.LESSER_EQUAL: operator.le,
+             }   
+
+UNARY_OPERATORS = {
+            TokenType.MINUS,
+            TokenType.BANG
+        }
+
+EQUALITY_OPERATORS = {
+                TokenType.EQUAL_EQUAL, 
+                TokenType.BANG_EQUAL
+           }
+

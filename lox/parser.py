@@ -1,6 +1,8 @@
 from typing import List 
 from lox import state, errors, tokens, lexer, expr
 
+class ParseError(Exception):
+    pass 
 
 def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
     
@@ -9,7 +11,7 @@ def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
         return parse_equality() 
 
     def parse_equality() -> expr.Expr:
-        print("I'm parsing equality!")
+        #print("I'm parsing equality!")
         lhs = parse_comparison() 
         while lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.BANG_EQUAL, tokens.TokenType.EQUAL_EQUAL):
             operator = lexed_tokens.pop(0)
