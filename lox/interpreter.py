@@ -1,6 +1,8 @@
 from typing import Any 
 
 from lox import tokens 
+from lox import errors
+from lox import state
 from lox.expr import Visitor, Binary, Grouping, Literal, Unary
 
 
@@ -22,6 +24,10 @@ class Interpreter(Visitor[Any]):
         if expr.operator.type == tokens.TokenType.BANG: 
             return not expr.right.accept(Interpreter)
         elif expr.operator.type == tokens.TokenType.MINUS:
-            return -expr.right.accept(Interpreter)
+            expr.right = expr.right.accept(Interpreter)
+            if type(expr.right) == float: 
+                return -expr.right
+            else: 
+                errors.report("RuntimeError", state.current_file_name, 1, 1, "Can't negate a non-numeric value!")
         else: 
             return None 

@@ -12,7 +12,6 @@ def run(string : str) -> None:
     if lexed_tokens:
         print(lexed_tokens,'\n'*3)
         new_expr = parser.parse(lexed_tokens)
-        print(new_expr)
         print(new_expr.accept(uglyprinter.Printer))
         print("\n"*3)
         print(new_expr.accept(Interpreter))

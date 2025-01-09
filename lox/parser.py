@@ -7,29 +7,25 @@ class ParseError(Exception):
 def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
     
     def parse_expression() -> expr.Expr:
-        #print("I'm parsing expression!")
         return parse_equality() 
 
     def parse_equality() -> expr.Expr:
-        #print("I'm parsing equality!")
         lhs = parse_comparison() 
-        while lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.BANG_EQUAL, tokens.TokenType.EQUAL_EQUAL):
+        while lexed_tokens and lexed_tokens[0].type in tokens.EQUALITY_OPERATORS:
             operator = lexed_tokens.pop(0)
             rhs = parse_comparison()
             lhs = expr.Binary(lhs, operator, rhs)
         return lhs
 
     def parse_comparison() -> expr.Expr:
-        #print("I'm parsing comparisons!")
         lhs = parse_term() 
-        while lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.GREATER, tokens.TokenType.GREATER_EQUAL, tokens.TokenType.LESSER, tokens.TokenType.LESSER_EQUAL):
+        while lexed_tokens and lexed_tokens[0].type in tokens.COMPARISON_OPERATORS:
             operator = lexed_tokens.pop(0)
             rhs = parse_term()
             lhs = expr.Binary(lhs, operator, rhs)
         return lhs
     
     def parse_term() -> expr.Expr:
-        #print("I'm parsing terms!")
         lhs = parse_factor() 
         while lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.MINUS, tokens.TokenType.PLUS):
             operator = lexed_tokens.pop(0)
@@ -38,7 +34,6 @@ def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
         return lhs
 
     def parse_factor() -> expr.Expr:
-        #print("I'm parsing factor!")
         lhs = parse_unary() 
         while lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.TIMES, tokens.TokenType.DIVIDED_BY):
             operator = lexed_tokens.pop(0)
@@ -47,38 +42,25 @@ def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
         return lhs
     
     def parse_unary() -> expr.Expr:
-        #print("I'm parsing unary!")
-        if lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.BANG, tokens.TokenType.MINUS):
-            lexed_tokens.pop(0)
-            return parse_unary() 
+        if lexed_tokens and lexed_tokens[0].type in tokens.UNARY_OPERATORS:
+            return expr.Unary(lexed_tokens.pop(0), parse_unary()) 
         else: 
             return parse_primary() 
 
     def parse_primary():
-        #print("I'm parsing primary!")
         match lexed_tokens[0].type:
-            case tokens.TokenType.NUMBER: 
+            case temp_tok if temp_tok in tokens.LITERAL_OBJECTS: 
                 return expr.Literal(lexed_tokens.pop(0).value)
-            case tokens.TokenType.STRING:
-                return expr.Literal(lexed_tokens.pop(0).value)
-            case tokens.TokenType.TRUE:
+            case temp_tok if temp_tok in tokens.LITERAL_CONSTANTS:
                 lexed_tokens.pop(0)
-                return expr.Literal(True)
-            case tokens.TokenType.FALSE:
-                lexed_tokens.pop(0)
-                return expr.Literal(False)
-            case tokens.TokenType.NIL:
-                lexed_tokens.pop(0)
-                return expr.Literal(None)
-            case tokens.TokenType.IDENTIFIER:
-                print("I parsed an identifier!")
-                return expr.Literal(lexed_tokens.pop(0).value)
+                return expr.Literal(tokens.LITERAL_CONSTANTS[temp_tok])
             case tokens.TokenType.LEFT_PAREN:
                 lexed_tokens.pop(0)
                 temp = parse_expression()
                 if lexed_tokens[0].type == tokens.TokenType.RIGHT_PAREN:
                     lexed_tokens.pop(0)
                 return temp
-
+            case _: 
+                errors.report("ParseError", state.current_file_name, 1, 1, "Expected an expression!") 
     
     return parse_expression()

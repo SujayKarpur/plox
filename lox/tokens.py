@@ -131,3 +131,21 @@ EQUALITY_OPERATORS = {
                 TokenType.BANG_EQUAL
            }
 
+COMPARISON_OPERATORS = {
+                            TokenType.GREATER, 
+                            TokenType.GREATER_EQUAL, 
+                            TokenType.LESSER, 
+                            TokenType.LESSER_EQUAL
+                       }
+
+LITERAL_OBJECTS = {
+                        TokenType.NUMBER, 
+                        TokenType.STRING, 
+                        TokenType.IDENTIFIER
+                  }
+
+LITERAL_CONSTANTS = {
+                        TokenType.TRUE : True, 
+                        TokenType.FALSE : False,
+                        TokenType.NIL : None 
+                    }
