@@ -1,11 +1,11 @@
 from typing import List 
 from lox import state, errors, tokens, lexer, expr
-import sys
+
 
 def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
     
     def parse_expression() -> expr.Expr:
-        print("I'm parsing expression!")
+        #print("I'm parsing expression!")
         return parse_equality() 
 
     def parse_equality() -> expr.Expr:
@@ -18,7 +18,7 @@ def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
         return lhs
 
     def parse_comparison() -> expr.Expr:
-        print("I'm parsing comparisons!")
+        #print("I'm parsing comparisons!")
         lhs = parse_term() 
         while lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.GREATER, tokens.TokenType.GREATER_EQUAL, tokens.TokenType.LESSER, tokens.TokenType.LESSER_EQUAL):
             operator = lexed_tokens.pop(0)
@@ -27,7 +27,7 @@ def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
         return lhs
     
     def parse_term() -> expr.Expr:
-        print("I'm parsing terms!")
+        #print("I'm parsing terms!")
         lhs = parse_factor() 
         while lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.MINUS, tokens.TokenType.PLUS):
             operator = lexed_tokens.pop(0)
@@ -36,7 +36,7 @@ def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
         return lhs
 
     def parse_factor() -> expr.Expr:
-        print("I'm parsing factor!")
+        #print("I'm parsing factor!")
         lhs = parse_unary() 
         while lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.TIMES, tokens.TokenType.DIVIDED_BY):
             operator = lexed_tokens.pop(0)
@@ -45,7 +45,7 @@ def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
         return lhs
     
     def parse_unary() -> expr.Expr:
-        print("I'm parsing unary!")
+        #print("I'm parsing unary!")
         if lexed_tokens and lexed_tokens[0].type in (tokens.TokenType.BANG, tokens.TokenType.MINUS):
             lexed_tokens.pop(0)
             return parse_unary() 
@@ -53,7 +53,7 @@ def parse(lexed_tokens: List[tokens.Token]) -> expr.Expr:
             return parse_primary() 
 
     def parse_primary():
-        print("I'm parsing primary!")
+        #print("I'm parsing primary!")
         match lexed_tokens[0].type:
             case tokens.TokenType.NUMBER: 
                 return expr.Literal(lexed_tokens.pop(0).value)

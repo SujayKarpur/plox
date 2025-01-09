@@ -31,8 +31,12 @@ def reset_lexer(new_lexer_position:int = 0, new_lexer_row:int = 0, new_lexer_col
 
 parser_position : int = 0
 
+def reset_parser() -> None:
+    pass 
+
 def reset_state() -> None:
     """set all global variables to default values"""
     reset_error_flag()
     reset_lexer()
+    reset_parser()
 

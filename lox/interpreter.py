@@ -1,18 +1,19 @@
+from typing import Any 
 from lox.expr import Visitor, Binary, Grouping, Literal, Unary
 
 
 
 
-class Printer(Visitor[str]):
+class Interpreter(Visitor[Any]):
 
     def visit_binary_expression(self, expr : Binary) -> str: 
-        return f"({expr.operator.value} {expr.left.accept(self)} {expr.right.accept(self)})" 
+        return None 
 
     def visit_grouping_expression(self, expr : Grouping) -> str:
-        return f"('group', {expr.expression.accept(self)})" 
+        return None 
 
     def visit_literal_expression(self, expr : Literal) -> str:
-        return f"({expr.value})"   
+        return expr.value 
 
     def visit_unary_expression(self, expr : Unary) -> str:
-        return f"({expr.operator.value} {expr.right.accept(self)})"   
+        return None 
