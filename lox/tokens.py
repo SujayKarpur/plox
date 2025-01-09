@@ -1,5 +1,6 @@
 import re 
 import enum 
+import operator
 
 from lox import state 
 from lox import errors 
@@ -105,3 +106,17 @@ def actions(token: Token) -> None:
             errors.report("LexError", state.current_file_name, state.lexer_row, state.lexer_column, f"Invalid character : {token.value}")
         case _: 
             pass 
+
+
+OPERATIONS = {
+            TokenType.PLUS: operator.add,
+            TokenType.MINUS: operator.sub,
+            TokenType.TIMES: operator.mul,
+            TokenType.DIVIDED_BY: operator.truediv,
+            TokenType.EQUAL_EQUAL: operator.eq,
+            TokenType.BANG_EQUAL: lambda x,y : x != y, 
+            TokenType.GREATER: operator.gt, 
+            TokenType.GREATER_EQUAL: operator.ge, 
+            TokenType.LESSER: operator.lt,
+            TokenType.LESSER_EQUAL: operator.le,
+            }   

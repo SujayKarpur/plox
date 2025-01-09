@@ -4,6 +4,7 @@ from lox import parser
 from lox import expr
 
 from lox import uglyprinter
+from lox.interpreter import Interpreter
 
 def run(string : str) -> None:
     state.currently_executing_program = string
@@ -13,3 +14,5 @@ def run(string : str) -> None:
         new_expr = parser.parse(lexed_tokens)
         print(new_expr)
         print(new_expr.accept(uglyprinter.Printer))
+        print("\n"*3)
+        print(new_expr.accept(Interpreter))
