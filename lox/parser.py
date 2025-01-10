@@ -21,9 +21,11 @@ def parse_program(lexed_tokens: List[tokens.Token]) -> List[stmt.Stmt]:
 
 def parse_statement(lexed_tokens: List[tokens.Token]) -> stmt.Stmt: 
     if lexed_tokens[state.parser_position].type == tokens.TokenType.PRINT:
+        print("i'm parsing print!!")
         state.reset_parser(state.parser_position+1)
         new_statement = parse_expression(lexed_tokens)
-        if lexed_tokens[state.parser_position].type != tokens.TokenType.SEMICOLON:
+        print(lexed_tokens, state.parser_position)
+        if parser_end() or lexed_tokens[state.parser_position].type != tokens.TokenType.SEMICOLON:
             errors.report("ParseError", state.current_file_name, 1, 1, "Missing semicolon!")
             sys.exit()
         else: 
@@ -31,7 +33,7 @@ def parse_statement(lexed_tokens: List[tokens.Token]) -> stmt.Stmt:
             return stmt.Print(new_statement) 
     else: 
         new_statement = parse_expression(lexed_tokens)
-        if lexed_tokens[state.parser_position].type != tokens.TokenType.SEMICOLON:
+        if parser_end() or lexed_tokens[state.parser_position].type != tokens.TokenType.SEMICOLON:
             errors.report("ParseError", state.current_file_name, 1, 1, "Missing semicolon!")
             sys.exit()
         else: 
