@@ -23,6 +23,9 @@ class Visitor(Protocol[R]):
     def visit_unary_expression(self, expr : 'Unary') -> R:
         pass  
 
+    def visit_variable_exression(self, expr : 'Variable') -> R: 
+        pass 
+
 
 class Expr(ABC): 
     
@@ -64,3 +67,6 @@ class Unary(Expr):
 @dataclass
 class Variable(Expr):
     name : Token 
+
+    def accept(self, visitor: Visitor[R]) -> R:
+        return visitor.visit_variable_exression(visitor, self)

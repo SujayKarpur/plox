@@ -18,6 +18,8 @@ class Visitor(Protocol[R]):
     def visit_expression_statement(self, stmt : 'Expression') -> R:
         pass  
 
+    def visit_variable_statement(self, stmt : 'Var') -> R: 
+        pass 
 
 class Stmt(ABC):
 
@@ -44,3 +46,6 @@ class Expression(Stmt):
 class Var(Stmt):
     name : tokens.Token 
     initializer : expr.Expr
+
+    def accept(self, visitor: Visitor[R]):
+        return visitor.visit_variable_statement(visitor, self)
