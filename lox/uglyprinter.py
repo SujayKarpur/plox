@@ -20,5 +20,8 @@ class Printer(expr.Visitor[str], stmt.Visitor[str]):
     def visit_expression_statement(self, s : stmt.Expression):
         return f"[Statement : {s.expression.accept(Printer)}]"
     
-    def visit_print_statement(self, s : stmt.Expression):
+    def visit_print_statement(self, s : stmt.Print):
         return f"[Statement : print {s.expression.accept(Printer)}]"
+    
+    def visit_variable_statement(self, s : stmt.Var):
+        return f"[Statement: var {s.name.value, s.initializer.accept(Printer)}]"
