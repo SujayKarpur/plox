@@ -1,4 +1,5 @@
 from typing import Any 
+import sys 
 
 from lox import tokens 
 from lox import errors
@@ -35,10 +36,18 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
                 errors.report("RuntimeError", state.current_file_name, 1, 1, "Can't negate a non-numeric value!")
         else: 
             return None 
+    
+    def visit_variable_exression(self, e : expr.Variable):
+        if e.name.value not in state.Environment:
+            errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
+            sys.exit()
+        return state.Environment[e.name.value]
 
     def visit_print_statement(self, s : stmt.Print):
         print(utils.loxify(s.expression.accept(Interpreter))) 
 
     def visit_expression_statement(self, s : stmt.Expression):
         return s.expression.accept(Interpreter)  
-        
+    
+    def visit_variable_statement(self, s : stmt.Var):
+        state.Environment[s.name.value] = s.initializer.accept(Interpreter) 

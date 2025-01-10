@@ -148,7 +148,6 @@ COMPARISON_OPERATORS = {
 LITERAL_OBJECTS = {
                         TokenType.NUMBER, 
                         TokenType.STRING, 
-                        TokenType.IDENTIFIER
                   }
 
 LITERAL_CONSTANTS = {

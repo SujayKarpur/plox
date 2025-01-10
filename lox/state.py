@@ -44,7 +44,16 @@ def reset_REPL() -> None:
     reset_lexer()
     reset_parser()
 
+
+Environment = {} 
+
+
+def reset_environment() -> None: 
+    pass 
+
+
 def reset_state() -> None:
     """set all global variables to default values"""
     reset_REPL()
+    reset_environment()
     #add. reset env etc.

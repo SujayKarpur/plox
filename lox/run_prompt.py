@@ -12,7 +12,7 @@ def run_prompt():
             print('lox> ', end='')
             line = input()
             run(line+'\n')
-            state.reset_state()
+            state.reset_REPL()
     except EOFError:
         print('\n\nExiting pLox......')
 

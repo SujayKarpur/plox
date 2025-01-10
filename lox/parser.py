@@ -99,6 +99,10 @@ def parse_unary() -> expr.Expr:
 
 def parse_primary():
     match LEXED_TOKENS[state.parser_position].type:
+        case tokens.TokenType.IDENTIFIER: 
+            name = LEXED_TOKENS[state.parser_position]
+            state.reset_parser(state.parser_position+1)
+            return expr.Variable(name)
         case temp_tok if temp_tok in tokens.LITERAL_OBJECTS: 
             literal = LEXED_TOKENS[state.parser_position]
             state.reset_parser(state.parser_position+1)
