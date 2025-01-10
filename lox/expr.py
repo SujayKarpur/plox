@@ -60,3 +60,7 @@ class Unary(Expr):
 
     def accept(self, visitor: Visitor[R]) -> R:
         return visitor.visit_unary_expression(visitor, self)
+
+@dataclass
+class Variable(Expr):
+    name : Token 

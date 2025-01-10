@@ -1,10 +1,9 @@
 from typing import List 
-from collections.abc import Iterator 
 import sys  
 
 from lox import state, errors, tokens
 from lox import expr, stmt
-from lox.uglyprinter import Printer
+
 
 LEXED_TOKENS : List[tokens.Token] 
 
@@ -34,9 +33,22 @@ def parse_program() -> List[stmt.Stmt]:
     #print("I'm parsing program!")
     statements: List[stmt.Stmt] = []
     while not parser_end():
-        statements.append(parse_statement())
+        statements.append(parse_declaration())
         state.reset_parser(state.parser_position+1)
     return statements
+
+def parse_declaration() -> stmt.Stmt:
+    if consume(tokens.TokenType.VAR, "", True):
+        name = consume(tokens.TokenType.IDENTIFIER, "Expected identifier")
+        if consume(tokens.TokenType.EQUAL, "", True): 
+            initializer = parse_expression()
+            consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
+            return stmt.Var(name, initializer) 
+        else:
+            consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
+            return stmt.Var(name, None)
+    else: 
+        return parse_statement()
 
 def parse_statement() -> stmt.Stmt: 
     if consume(tokens.TokenType.PRINT, "", True):

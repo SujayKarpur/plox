@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Protocol, TypeVar
 
+from lox import tokens
 from lox import expr 
 
 
@@ -38,3 +39,8 @@ class Expression(Stmt):
 
     def accept(self, visitor: Visitor[R]):
         return visitor.visit_expression_statement(visitor, self)
+    
+@dataclass
+class Var(Stmt):
+    name : tokens.Token 
+    initializer : expr.Expr
