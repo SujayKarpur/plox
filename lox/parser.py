@@ -1,44 +1,45 @@
 from typing import List 
+from collections.abc import Iterator 
 import sys  
 
 from lox import state, errors, tokens
 from lox import expr, stmt
 
-class ParseError(Exception):
-    pass 
 
 
 def parser_end() -> bool:
     return state.parser_position > state.max_parser_position
 
 
+def consume(lexed_tokens: List[tokens.Token], expected_token_types, error_message:str, optional:bool = False):
+    if not isinstance(expected_token_types, Iterator):
+        expected_token_types = [expected_token_types] 
+    if not parser_end() and lexed_tokens[state.parser_position].type in expected_token_types:
+        state.reset_parser(state.parser_position+1)
+        return lexed_tokens[state.parser_position-1] 
+    else:
+        if optional:
+            return None 
+        errors.report("ParseError", state.current_file_name, 1, 1, error_message)
+        sys.exit()
+
+
 def parse_program(lexed_tokens: List[tokens.Token]) -> List[stmt.Stmt]: 
     statements: List[stmt.Stmt] = []
-    while state.parser_position <= state.max_parser_position:
+    while not parser_end():
         statements.append(parse_statement(lexed_tokens))
         state.reset_parser(state.parser_position+1)
     return statements
 
 def parse_statement(lexed_tokens: List[tokens.Token]) -> stmt.Stmt: 
-    if lexed_tokens[state.parser_position].type == tokens.TokenType.PRINT:
-        print("i'm parsing print!!")
-        state.reset_parser(state.parser_position+1)
+    if consume(lexed_tokens, tokens.TokenType.PRINT, "", True):
         new_statement = parse_expression(lexed_tokens)
-        print(lexed_tokens, state.parser_position)
-        if parser_end() or lexed_tokens[state.parser_position].type != tokens.TokenType.SEMICOLON:
-            errors.report("ParseError", state.current_file_name, 1, 1, "Missing semicolon!")
-            sys.exit()
-        else: 
-            state.reset_parser(state.parser_position+1)
-            return stmt.Print(new_statement) 
+        consume(lexed_tokens, tokens.TokenType.SEMICOLON, "Missing semicolon")
+        return stmt.Print(new_statement) 
     else: 
         new_statement = parse_expression(lexed_tokens)
-        if parser_end() or lexed_tokens[state.parser_position].type != tokens.TokenType.SEMICOLON:
-            errors.report("ParseError", state.current_file_name, 1, 1, "Missing semicolon!")
-            sys.exit()
-        else: 
-            state.reset_parser(state.parser_position+1)
-            return stmt.Expression(new_statement) 
+        consume(lexed_tokens, tokens.TokenType.SEMICOLON, "Missing semicolon")
+        return stmt.Expression(new_statement) 
         
 def parse_expression(lexed_tokens: List[tokens.Token]) -> expr.Expr:
     return parse_equality(lexed_tokens) 

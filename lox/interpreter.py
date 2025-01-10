@@ -5,17 +5,9 @@ from lox import errors
 from lox import state
 from lox import expr 
 from lox import stmt 
+from lox import utils
 
-def loxify(f):
 
-    if f is True:
-        return "true"
-    elif f is False: 
-        return "false" 
-    elif f == None:
-        return "nil"
-    else:
-        return f 
     
 
 class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
@@ -45,7 +37,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             return None 
 
     def visit_print_statement(self, s : stmt.Print):
-        print(loxify(s.expression.accept(Interpreter))) 
+        print(utils.loxify(s.expression.accept(Interpreter))) 
 
     def visit_expression_statement(self, s : stmt.Expression):
         return s.expression.accept(Interpreter)  
