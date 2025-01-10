@@ -1,18 +1,24 @@
-from lox.expr import Visitor, Binary, Grouping, Literal, Unary
+from lox import expr 
+from lox import stmt 
 
 
 
+class Printer(expr.Visitor[str], stmt.Visitor[str]):
 
-class Printer(Visitor[str]):
+    def visit_binary_expression(self, e : expr.Binary) -> str: 
+        return f"({e.operator.value} {e.left.accept(self)} {e.right.accept(self)})" 
 
-    def visit_binary_expression(self, expr : Binary) -> str: 
-        return f"({expr.operator.value} {expr.left.accept(self)} {expr.right.accept(self)})" 
+    def visit_grouping_expression(self, e : expr.Grouping) -> str:
+        return f"('group', {e.expression.accept(self)})" 
 
-    def visit_grouping_expression(self, expr : Grouping) -> str:
-        return f"('group', {expr.expression.accept(self)})" 
+    def visit_literal_expression(self, e : expr.Literal) -> str:
+        return f"({e.value})"   
 
-    def visit_literal_expression(self, expr : Literal) -> str:
-        return f"({expr.value})"   
-
-    def visit_unary_expression(self, expr : Unary) -> str:
-        return f"({expr.operator.value} {expr.right.accept(self)})"   
+    def visit_unary_expression(self, e : expr.Unary) -> str:
+        return f"({e.operator.value} {e.right.accept(self)})"   
+    
+    def visit_expression_statement(self, s : stmt.Expression):
+        return f"[Statement : {s.expression.accept(Printer)}]"
+    
+    def visit_print_statement(self, s : stmt.Expression):
+        return f"[Statement : print {s.expression.accept(Printer)}]"

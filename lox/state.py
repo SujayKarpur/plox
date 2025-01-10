@@ -36,9 +36,12 @@ def reset_parser(new_parser_position: int = 0) -> None:
     parser_position = new_parser_position
 
 
-def reset_state() -> None:
-    """set all global variables to default values"""
+def reset_REPL() -> None: 
     reset_error_flag()
     reset_lexer()
     reset_parser()
 
+def reset_state() -> None:
+    """set all global variables to default values"""
+    reset_REPL()
+    #add. reset env etc.
