@@ -11,6 +11,8 @@ def run(string : str) -> None:
     lexed_tokens = lexer.lex(string)
     if lexed_tokens:
         new = parser.parse(lexed_tokens)
+        print(lexed_tokens)
         if new: 
-            print(lexed_tokens,'\n'*3)
-            print(new[0].accept(Statement_Interpreter)) 
+            print('\n'*3)
+            for i in new:
+                print(i.accept(Statement_Interpreter)) 
