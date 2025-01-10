@@ -46,8 +46,16 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
     def visit_print_statement(self, s : stmt.Print):
         print(utils.loxify(s.expression.accept(Interpreter))) 
 
+    def visit_scan_statement(self, s : stmt.Scan):
+        temp = input() #fix later; shouldn't be input, should lex/parse the string
+        state.Environment[s.variable.name.value] = temp
+        #print(utils.loxify(s.expression.accept(Interpreter))) 
+
     def visit_expression_statement(self, s : stmt.Expression):
         return s.expression.accept(Interpreter)  
     
     def visit_variable_statement(self, s : stmt.Var):
-        state.Environment[s.name.value] = s.initializer.accept(Interpreter) 
+        try:
+            state.Environment[s.name.value] = s.initializer.accept(Interpreter) 
+        except:
+            state.Environment[s.name.value] = None 

@@ -55,6 +55,10 @@ def parse_statement() -> stmt.Stmt:
         new_statement = parse_expression()
         consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
         return stmt.Print(new_statement) 
+    elif consume(tokens.TokenType.SCAN, "", True):
+        name = consume(tokens.TokenType.IDENTIFIER, "Expected identifier")
+        consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
+        return stmt.Scan(expr.Variable(name)) 
     else: 
         new_statement = parse_expression()
         consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
