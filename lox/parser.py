@@ -93,7 +93,21 @@ def parse_assignment() -> expr.Expr:
             state.reset_parser(state.parser_position-1) 
             return parse_equality()
     else:
-        return parse_equality() 
+        return parse_logic_or() 
+
+def parse_logic_or() -> expr.Expr:
+    lhs = parse_logic_and() 
+    while (operator := consume(tokens.TokenType.OR, "", True)):
+        rhs = parse_logic_and()
+        lhs = expr.Logical(lhs, operator, rhs)
+    return lhs
+
+def parse_logic_and() -> expr.Expr: 
+    lhs = parse_equality() 
+    while (operator := consume(tokens.TokenType.AND, "", True)):
+        rhs = parse_equality()
+        lhs = expr.Logical(lhs, operator, rhs)
+    return lhs
 
 def parse_equality() -> expr.Expr:
     lhs = parse_comparison() 

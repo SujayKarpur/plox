@@ -23,6 +23,16 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         right = e.right.accept(Interpreter)
         return tokens.OPERATIONS[e.operator.type](left,right)
 
+    def visit_logical_expression(self, e : expr.Logical):
+        left = e.left.accept(Interpreter)
+        if e.operator.type == tokens.TokenType.OR: 
+            if left: 
+                return left  
+        else: 
+            if not left:
+                return left  
+        return e.right.accept(Interpreter)
+
     def visit_grouping_expression(self, e : expr.Grouping) -> str:
         return e.expression.accept(Interpreter) 
 

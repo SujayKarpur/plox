@@ -14,6 +14,9 @@ class Visitor(Protocol[R]):
     def visit_binary_expression(self, expr : 'Binary') -> R: #forward references
         pass 
 
+    def visit_logical_expression(self, expr : 'Logical') -> R: 
+        pass 
+
     def visit_grouping_expression(self, expr : 'Grouping') -> R:
         pass  
 
@@ -44,6 +47,15 @@ class Binary(Expr):
 
     def accept(self, visitor: Visitor[R]) -> R:
         return visitor.visit_binary_expression(visitor, self)
+
+@dataclass
+class Logical(Expr):
+    left : Expr 
+    operator : Token 
+    right : Expr  
+
+    def accept(self, visitor: Visitor[R]) -> R:
+        return visitor.visit_logical_expression(visitor, self)
 
 @dataclass
 class Grouping(Expr):
