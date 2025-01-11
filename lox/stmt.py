@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Protocol, TypeVar, List
+from typing import Protocol, TypeVar, List, Union 
 
 from lox import tokens
 from lox import expr 
@@ -31,6 +31,9 @@ class Visitor(Protocol[R]):
         pass  
 
     def visit_variable_statement(self, stmt : 'Var') -> R: 
+        pass 
+
+    def visit_blank_statement(self, stmt : 'Blank') -> R:
         pass 
 
 class Stmt(ABC):
@@ -64,6 +67,16 @@ class While(Stmt):
         return visitor.visit_while_statement(visitor, self)
 
 @dataclass
+class For(Stmt): 
+    init : Union[expr.Expr, 'Var', 'Blank']
+    condition : expr.Expr 
+    iter : expr.Expr 
+    statement : Stmt 
+
+    def accept(self, visitor: Visitor[R]):
+        return visitor.visit_while_statement(visitor, self)
+
+@dataclass
 class Print(Stmt): 
     expression : expr.Expr
 
@@ -91,3 +104,9 @@ class Var(Stmt):
 
     def accept(self, visitor: Visitor[R]):
         return visitor.visit_variable_statement(visitor, self)
+
+@dataclass
+class Blank(Stmt):
+
+    def accept(self, visitor: Visitor[R]):
+        return visitor.visit_blank_statement(visitor, self)
