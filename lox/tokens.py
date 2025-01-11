@@ -64,18 +64,6 @@ class TokenType(enum.Enum):
 
     UNRECOGNIZABLE = r'(.|\n)+?'
 
-    @staticmethod
-    def match(string, position, row, column):
-        for tokentype in TokenType:
-            pattern = re.compile(tokentype.value)
-            match = pattern.match(string, pos=position)
-            if match:
-                matched_object = match.group()
-                if tokentype == TokenType.IDENTIFIER:
-                    if matched_object in state.KEYWORDS:
-                        continue 
-                new_token = Token(tokentype, matched_object, position, row, column)
-                return (new_token, len(matched_object))
 
 
 
@@ -87,7 +75,6 @@ class Token:
         self.position = position
         self.row = row 
         self.column = column
-        actions(self) 
 
     def __repr__(self) -> str:
         return f"({self.type.name} , {self.value})" 
@@ -95,18 +82,6 @@ class Token:
 
 
 
-def actions(token: Token) -> None:
-    match token.type:
-        case TokenType.NEWLINE:
-            state.reset_lexer(state.lexer_position, state.lexer_row+1, 0)
-        case TokenType.STRING:
-            token.value = token.value[1:-1]
-        case TokenType.NUMBER:
-            token.value = float(token.value)
-        case TokenType.UNRECOGNIZABLE:
-            errors.report("LexError", state.current_file_name, state.lexer_row, state.lexer_column, f"Invalid character : {token.value}")
-        case _: 
-            pass 
 
 
 def safify(fun : typing.Callable) -> typing.Callable:
@@ -155,3 +130,5 @@ LITERAL_CONSTANTS = {
                         TokenType.FALSE : False,
                         TokenType.NIL : None 
                     }
+
+IGNORED_TOKENS = {TokenType.COMMENT, TokenType.MULTI_LINE_COMMENT, TokenType.SPACE, TokenType.NEWLINE, TokenType.TAB}
