@@ -2,10 +2,11 @@
 
 
 import sys 
-from lox import run_prompt, run_script
+from lox import run_prompt, run_script,state 
 
 
 def main():
+    state.reset_state()
     if len(sys.argv) == 1:
         run_prompt.run_prompt()
     elif len(sys.argv) == 2:
