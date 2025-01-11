@@ -51,6 +51,16 @@ def parse_declaration() -> stmt.Stmt:
         return parse_statement()
 
 def parse_statement() -> stmt.Stmt: 
+    if consume(tokens.TokenType.IF, "", True):
+        consume(tokens.TokenType.LEFT_PAREN, "Expected '('!")
+        condition = parse_expression()
+        consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
+        if_statement = parse_statement()
+        if consume(tokens.TokenType.ELSE, "", True): 
+            else_statement = parse_statement()
+        else:
+            else_statement = None 
+        return stmt.If(condition, if_statement, else_statement) 
     if consume(tokens.TokenType.PRINT, "", True):
         new_statement = parse_expression()
         consume(tokens.TokenType.SEMICOLON, "Missing semicolon")

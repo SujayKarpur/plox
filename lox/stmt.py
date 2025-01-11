@@ -15,6 +15,9 @@ class Visitor(Protocol[R]):
     def visit_block_statement(self, stmt : 'Block') -> R: 
         pass 
 
+    def visit_if_statement(self, stmt : 'If') -> R:
+        pass 
+
     def visit_print_statement(self, stmt : 'Print') -> R: #forward references
         pass 
 
@@ -39,6 +42,15 @@ class Block(Stmt):
 
     def accept(self, visitor: Visitor[R]):
         return visitor.visit_block_statement(visitor, self)
+
+@dataclass
+class If(Stmt): 
+    condition : expr.Expr 
+    statement : Stmt 
+    else_branch : Stmt 
+
+    def accept(self, visitor: Visitor[R]):
+        return visitor.visit_if_statement(visitor, self)
 
 @dataclass
 class Print(Stmt): 

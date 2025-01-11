@@ -61,6 +61,12 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         Interpreter.interpret(s.statements)
         state.Environment = temp  
 
+    def visit_if_statement(self, s : stmt.If):
+        if s.condition.accept(Interpreter): 
+            s.statement.accept(Interpreter) 
+        else:
+            if s.else_branch: 
+                s.else_branch.accept(Interpreter)
     def visit_print_statement(self, s : stmt.Print):
         print(utils.loxify(s.expression.accept(Interpreter))) 
 
