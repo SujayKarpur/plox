@@ -63,13 +63,15 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
             sys.exit()
         else: 
-            state.Environment[e.name.name.value] = e.expression.accept(Interpreter)
+            rhs = e.expression.accept(Interpreter)
+            state.Environment[e.name.name.value] = rhs
+            self.temp[e.name.name.value] = rhs
             return state.Environment[e.name.name.value]
 
     def visit_block_statement(self, s : stmt.Block):
-        temp = state.Environment.copy()
+        self.temp = state.Environment.copy()
         Interpreter.interpret(s.statements)
-        state.Environment = temp  
+        state.Environment = self.temp  
 
     def visit_if_statement(self, s : stmt.If):
         if s.condition.accept(Interpreter): 
@@ -77,6 +79,13 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         else:
             if s.else_branch: 
                 s.else_branch.accept(Interpreter)
+
+    def visit_while_statement(self, s : stmt.While):
+        con = s.condition.accept(Interpreter)
+        while con:
+            s.statement.accept(Interpreter)
+            con = s.condition.accept(Interpreter)
+
     def visit_print_statement(self, s : stmt.Print):
         print(utils.loxify(s.expression.accept(Interpreter))) 
 

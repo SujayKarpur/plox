@@ -61,6 +61,12 @@ def parse_statement() -> stmt.Stmt:
         else:
             else_statement = None 
         return stmt.If(condition, if_statement, else_statement) 
+    if consume(tokens.TokenType.WHILE, "", True):
+        consume(tokens.TokenType.LEFT_PAREN, "Expected '('!")
+        condition = parse_expression()
+        consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
+        statement = parse_statement()
+        return stmt.While(condition, statement) 
     if consume(tokens.TokenType.PRINT, "", True):
         new_statement = parse_expression()
         consume(tokens.TokenType.SEMICOLON, "Missing semicolon")

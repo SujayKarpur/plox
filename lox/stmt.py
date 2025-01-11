@@ -18,6 +18,9 @@ class Visitor(Protocol[R]):
     def visit_if_statement(self, stmt : 'If') -> R:
         pass 
 
+    def visit_while_statement(self, stmt : 'While') -> R: 
+        pass 
+
     def visit_print_statement(self, stmt : 'Print') -> R: #forward references
         pass 
 
@@ -51,6 +54,14 @@ class If(Stmt):
 
     def accept(self, visitor: Visitor[R]):
         return visitor.visit_if_statement(visitor, self)
+
+@dataclass
+class While(Stmt): 
+    condition : expr.Expr 
+    statement : Stmt 
+
+    def accept(self, visitor: Visitor[R]):
+        return visitor.visit_while_statement(visitor, self)
 
 @dataclass
 class Print(Stmt): 
