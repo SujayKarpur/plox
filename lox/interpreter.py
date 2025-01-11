@@ -81,11 +81,21 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
                 s.else_branch.accept(Interpreter)
 
     def visit_while_statement(self, s : stmt.While):
-        con = s.condition.accept(Interpreter)
-        while con:
+        while s.condition.accept(Interpreter):
             s.statement.accept(Interpreter)
-            con = s.condition.accept(Interpreter)
 
+    def visit_for_statement(self, s : stmt.For):
+        s.init.accept(Interpreter)
+        if iter != None: 
+            new_block_statements = stmt.Block([s.statement, stmt.Expression(s.iter)]) 
+        else: 
+            new_block_statements = s.statement
+        if not isinstance(s.condition, stmt.Blank):
+            desugar = stmt.While(s.condition, new_block_statements)
+        else: 
+            desugar = stmt.While(True, new_block_statements)
+        desugar.accept(Interpreter)
+        
     def visit_print_statement(self, s : stmt.Print):
         print(utils.loxify(s.expression.accept(Interpreter))) 
 
@@ -102,3 +112,6 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             state.Environment[s.name.value] = s.initializer.accept(Interpreter) 
         except:
             state.Environment[s.name.value] = None 
+    
+    def visit_blank_statement(self, stmt):
+        pass 

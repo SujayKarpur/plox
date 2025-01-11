@@ -21,6 +21,9 @@ class Visitor(Protocol[R]):
     def visit_while_statement(self, stmt : 'While') -> R: 
         pass 
 
+    def visit_for_statement(self, stmt : 'For') -> R: 
+        pass 
+
     def visit_print_statement(self, stmt : 'Print') -> R: #forward references
         pass 
 
@@ -74,7 +77,7 @@ class For(Stmt):
     statement : Stmt 
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_while_statement(visitor, self)
+        return visitor.visit_for_statement(visitor, self)
 
 @dataclass
 class Print(Stmt): 

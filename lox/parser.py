@@ -62,11 +62,25 @@ def parse_statement() -> stmt.Stmt:
             else_statement = None 
         return stmt.If(condition, if_statement, else_statement) 
     if consume(tokens.TokenType.WHILE, "", True):
-        consume(tokens.TokenType.LEFT_PAREN, "Expected '('!")
+        consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `while`!")
         condition = parse_expression()
         consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
         statement = parse_statement()
         return stmt.While(condition, statement) 
+    if consume(tokens.TokenType.FOR, "", True):
+        consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `for`!")
+        if LEXED_TOKENS[state.parser_position].type == tokens.TokenType.VAR: 
+            init = parse_declaration() 
+        else: 
+            init = parse_statement()
+        condition = parse_statement()
+        if LEXED_TOKENS[state.parser_position].type != tokens.TokenType.RIGHT_PAREN:
+            iter = parse_expression()
+        else: 
+            iter = None 
+        consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
+        statement = parse_statement()
+        return stmt.For(init, condition, iter, statement) 
     if consume(tokens.TokenType.PRINT, "", True):
         new_statement = parse_expression()
         consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
@@ -81,6 +95,8 @@ def parse_statement() -> stmt.Stmt:
             statements.append(parse_declaration())
         consume(tokens.TokenType.RIGHT_BRACE, "Expected }!")
         return stmt.Block(statements) 
+    if consume(tokens.TokenType.SEMICOLON, "", True):
+        return stmt.Blank() 
     else: 
         new_statement = parse_expression()
         consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
