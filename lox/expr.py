@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Protocol, TypeVar  
+from typing import Any, Protocol, TypeVar, List 
 
 from lox.tokens import Token 
 
@@ -12,6 +12,9 @@ R = TypeVar('R') #Generic
 class Visitor(Protocol[R]): 
     
     def visit_binary_expression(self, expr : 'Binary') -> R: #forward references
+        pass 
+
+    def visit_call_expression(self, expr : 'Call') -> R: 
         pass 
 
     def visit_logical_expression(self, expr : 'Logical') -> R: 
@@ -47,6 +50,14 @@ class Binary(Expr):
 
     def accept(self, visitor: Visitor[R]) -> R:
         return visitor.visit_binary_expression(visitor, self)
+
+@dataclass
+class Call(Expr): 
+    callee : Expr 
+    arguments : List[Expr]
+
+    def accept(self, visitor : Visitor[R]) -> R: 
+        return visitor.visit_call_expression(visitor, self)
 
 @dataclass
 class Logical(Expr):

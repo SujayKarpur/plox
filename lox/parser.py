@@ -1,4 +1,4 @@
-from typing import List 
+from typing import List, Union 
 import sys  
 
 from lox import state, errors, tokens
@@ -27,6 +27,14 @@ def consume(expected_token_types, error_message:str, optional:bool = False):
         print("The state rn is ", state.parser_position, f"last token processed : {[LEXED_TOKENS[state.parser_position-1]]}")
         errors.report("ParseError", state.current_file_name, 1, 1, error_message)
         sys.exit()
+
+def match_without_consume(expected_token_types : Union[List[tokens.TokenType],tokens.TokenType]) -> bool: 
+    if not supports_in_operator(expected_token_types):
+        expected_token_types = [expected_token_types] 
+    if not parser_end() and LEXED_TOKENS[state.parser_position].type in expected_token_types:
+        return True 
+    else:
+        return False     
 
 
 def parse_program() -> List[stmt.Stmt]: 
@@ -164,6 +172,21 @@ def parse_unary() -> expr.Expr:
         return expr.Unary(operator, parse_unary()) 
     else: 
         return parse_primary() 
+
+def parse_call():
+    callee = parse_primary()
+    while consume(tokens.TokenType.LEFT_PAREN, "", True):
+        if match_without_consume(tokens.TokenType.RIGHT_PAREN): 
+            break  
+        else: 
+            expression_list : List[expr.Expr] = []  
+            expression_list.append(parse_expression())
+            while consume(tokens.TokenType.COMMA, "", True):
+                expression_list.append(parse_expression())
+    else:
+        return callee 
+    consume(tokens.TokenType.RIGHT_PAREN, "Expected matching ')'!")
+    return expr.Call(callee, expression_list)
 
 def parse_primary():
     match LEXED_TOKENS[state.parser_position].type:
