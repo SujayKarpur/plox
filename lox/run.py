@@ -17,9 +17,7 @@ def run(string : str) -> None:
     lexed_tokens = alex.lex(string)
 
     if lexed_tokens:
-        print("lexed")
         happy = parser.Parser(lexed_tokens)
         new = happy.parse()
         if new: 
-            print("parsed")
             Interpreter.interpret(new)

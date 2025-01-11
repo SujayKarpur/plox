@@ -5,10 +5,8 @@ from lox import state, errors, tokens, utils
 from lox import expr, stmt
 
 
-
-
 class Parser: 
-
+    """ Implementation of a Recursive Descent Parser for lox. methods corresponding to each rule in the grammar, plus helper methods"""
 
     def __init__(self, lexed_tokens : List[tokens.Token]) -> None:
         """ initialize parser with a list of lexed tokens """
@@ -40,6 +38,7 @@ class Parser:
 
 
     def consume(self, expected_token_types: Union[List[tokens.TokenType],tokens.TokenType], error_message:str, optional:bool = False):
+        """check for (optionally) expected token(s) at the current position. returns token and moves the parser position forward if it exists"""
 
         if not utils.supports_in_operator(expected_token_types):
             expected_token_types = [expected_token_types] 
@@ -57,6 +56,7 @@ class Parser:
 
 
     def parse_program(self) -> List[stmt.Stmt]: 
+        """program -> (statement)* EOF; outermost parsing rule, a program consists of zero or more statements followed by EOF"""
         statements: List[stmt.Stmt] = []
         while not self.end():
             statements.append(self.parse_declaration())
@@ -64,6 +64,8 @@ class Parser:
     
 
     def parse_declaration(self) -> stmt.Stmt:
+        """""" #update documentation after adding function declaration
+
         if self.consume(tokens.TokenType.VAR, "", True):
             name = self.consume(tokens.TokenType.IDENTIFIER, "Expected identifier after `var`!")
             if self.consume(tokens.TokenType.EQUAL, "", True): 
@@ -79,11 +81,14 @@ class Parser:
 
 
     def parse_statement(self) -> stmt.Stmt: 
+        """statement -> if_statement | while_statement | for_statement | print_statement | scan_statement | block | blank | expression_statement;
+        rule for parsing different kinds of statements 
+        """
 
-        if self.consume(tokens.TokenType.IF, "", True):
-            self.consume(tokens.TokenType.LEFT_PAREN, "Expected '('!")
+        if self.consume(tokens.TokenType.IF, "", True):                        # if_statement -> if (condition) statement (else statement)? 
+            self.consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `if`!")
             condition = self.parse_expression()
-            self.consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
+            self.consume(tokens.TokenType.RIGHT_PAREN, "Expected ')' after '('!")
             if_statement = self.parse_statement()
             if self.consume(tokens.TokenType.ELSE, "", True): 
                 else_statement = self.parse_statement()
@@ -141,6 +146,7 @@ class Parser:
 
 
     def parse_expression(self) -> expr.Expr:
+        """expression -> assignment; (begin parsing expressions, from lowest to highest priority)"""
         return self.parse_assignment()
 
 
@@ -244,7 +250,9 @@ class Parser:
             errors.report("ParseError", state.current_file_name, 1, 1, "Expected an expression!")
             sys.exit()
 
+
     def parse(self) -> List[stmt.Stmt]:
+        """entry point for parsing"""
         try: 
             return self.parse_program()
         except:
