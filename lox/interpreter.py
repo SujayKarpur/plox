@@ -1,5 +1,6 @@
-from typing import Any 
+from typing import Any, List 
 import sys 
+import copy 
 
 from lox import tokens 
 from lox import errors
@@ -12,6 +13,10 @@ from lox import utils
     
 
 class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
+
+    def interpret(statements : List[stmt.Stmt]):
+        for i in statements:
+            i.accept(Interpreter)
 
     def visit_binary_expression(self, e : expr.Binary) -> str: 
         left = e.left.accept(Interpreter)
@@ -50,6 +55,11 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         else: 
             state.Environment[e.name.name.value] = e.expression.accept(Interpreter)
             return state.Environment[e.name.name.value]
+
+    def visit_block_statement(self, s : stmt.Block):
+        temp = state.Environment.copy()
+        Interpreter.interpret(s.statements)
+        state.Environment = temp  
 
     def visit_print_statement(self, s : stmt.Print):
         print(utils.loxify(s.expression.accept(Interpreter))) 

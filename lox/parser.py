@@ -34,7 +34,7 @@ def parse_program() -> List[stmt.Stmt]:
     statements: List[stmt.Stmt] = []
     while not parser_end():
         statements.append(parse_declaration())
-        state.reset_parser(state.parser_position+1)
+        #state.reset_parser(state.parser_position+1)
     return statements
 
 def parse_declaration() -> stmt.Stmt:
@@ -59,6 +59,12 @@ def parse_statement() -> stmt.Stmt:
         name = consume(tokens.TokenType.IDENTIFIER, "Expected identifier")
         consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
         return stmt.Scan(expr.Variable(name)) 
+    elif consume(tokens.TokenType.LEFT_BRACE, "", True):
+        statements: List[stmt.Stmt] = []
+        while not parser_end() and not LEXED_TOKENS[state.parser_position].type == tokens.TokenType.RIGHT_BRACE:
+            statements.append(parse_declaration())
+        consume(tokens.TokenType.RIGHT_BRACE, "Expected }!")
+        return stmt.Block(statements) 
     else: 
         new_statement = parse_expression()
         consume(tokens.TokenType.SEMICOLON, "Missing semicolon")

@@ -13,6 +13,4 @@ def run(string : str) -> None:
         new = parser.parse(lexed_tokens)
         #print(lexed_tokens)
         if new: 
-            for i in new:
-                #print(i.accept(uglyprinter.Printer))
-                i.accept(Interpreter)
+            Interpreter.interpret(new)

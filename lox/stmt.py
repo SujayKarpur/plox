@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Protocol, TypeVar
+from typing import Protocol, TypeVar, List
 
 from lox import tokens
 from lox import expr 
@@ -11,7 +11,10 @@ R = TypeVar('R') #Generic
 
 
 class Visitor(Protocol[R]): 
-    
+
+    def visit_block_statement(self, stmt : 'Block') -> R: 
+        pass 
+
     def visit_print_statement(self, stmt : 'Print') -> R: #forward references
         pass 
 
@@ -30,6 +33,12 @@ class Stmt(ABC):
     def accept(self, visitor: Visitor[R]): 
         pass 
 
+@dataclass
+class Block(Stmt): 
+    statements : List[Stmt]
+
+    def accept(self, visitor: Visitor[R]):
+        return visitor.visit_block_statement(visitor, self)
 
 @dataclass
 class Print(Stmt): 
