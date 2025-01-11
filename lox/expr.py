@@ -49,7 +49,7 @@ class Binary(Expr):
     right : Expr  
 
     def accept(self, visitor: Visitor[R]) -> R:
-        return visitor.visit_binary_expression(visitor, self)
+        return visitor.visit_binary_expression(self)
 
 @dataclass
 class Call(Expr): 
@@ -57,7 +57,7 @@ class Call(Expr):
     arguments : List[Expr]
 
     def accept(self, visitor : Visitor[R]) -> R: 
-        return visitor.visit_call_expression(visitor, self)
+        return visitor.visit_call_expression(self)
 
 @dataclass
 class Logical(Expr):
@@ -66,21 +66,21 @@ class Logical(Expr):
     right : Expr  
 
     def accept(self, visitor: Visitor[R]) -> R:
-        return visitor.visit_logical_expression(visitor, self)
+        return visitor.visit_logical_expression(self)
 
 @dataclass
 class Grouping(Expr):
     expression : Expr 
 
     def accept(self, visitor: Visitor[R]) -> R:
-        return visitor.visit_grouping_expression(visitor, self)
+        return visitor.visit_grouping_expression(self)
 
 @dataclass
 class Literal(Expr):
     value : Any  
 
     def accept(self, visitor: Visitor[R]) -> R:
-        return visitor.visit_literal_expression(visitor, self)
+        return visitor.visit_literal_expression(self)
 
 @dataclass
 class Unary(Expr):
@@ -88,14 +88,14 @@ class Unary(Expr):
     right : Expr  
 
     def accept(self, visitor: Visitor[R]) -> R:
-        return visitor.visit_unary_expression(visitor, self)
+        return visitor.visit_unary_expression(self)
 
 @dataclass
 class Variable(Expr):
     name : Token 
 
     def accept(self, visitor: Visitor[R]) -> R:
-        return visitor.visit_variable_exression(visitor, self)
+        return visitor.visit_variable_exression(self)
 
 @dataclass
 class Assignment(Expr):
@@ -103,4 +103,4 @@ class Assignment(Expr):
     expression : Expr 
 
     def accept(self, visitor: Visitor[R]) -> R:
-        return visitor.visit_assignment_expression(visitor, self)
+        return visitor.visit_assignment_expression(self)

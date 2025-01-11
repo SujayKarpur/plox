@@ -20,4 +20,5 @@ def run(string : str) -> None:
         happy = parser.Parser(lexed_tokens)
         new = happy.parse()
         if new: 
-            Interpreter.interpret(new)
+            pretty = Interpreter()
+            pretty.interpret(new)

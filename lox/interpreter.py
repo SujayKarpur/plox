@@ -1,4 +1,4 @@
-from typing import Any, List 
+from typing import Any, List, Union 
 import sys 
 import copy 
 
@@ -15,40 +15,45 @@ from lox.loxcallable import LoxCallable
 
 class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
-    def interpret(statements : List[stmt.Stmt]):
-        for i in statements:
-            i.accept(Interpreter)
+    def interpret(self, statements : Union[List[stmt.Stmt],stmt.Stmt]):
+        try:
+            print("trying", statements)
+            for i in statements:
+                print(i)
+                i.accept(self)
+        except: 
+            statements.accept(self)
 
-    def evaluate(): 
-        pass 
+    def evaluate(self, expression : expr.Expr): 
+        return expression.accept(self) 
 
     def visit_binary_expression(self, e : expr.Binary) -> str: 
-        left = e.left.accept(Interpreter)
-        right = e.right.accept(Interpreter)
+        left = self.evaluate(e.left)
+        right = self.evaluate(e.right)
         return tokens.OPERATIONS[e.operator.type](left,right)
 
     def visit_logical_expression(self, e : expr.Logical):
-        left = e.left.accept(Interpreter)
+        left = self.evaluate(e.left)
         if e.operator.type == tokens.TokenType.OR: 
             if left: 
                 return left  
         else: 
             if not left:
                 return left  
-        return e.right.accept(Interpreter)
+        return self.evaluate(e.right)
 
     def visit_grouping_expression(self, e : expr.Grouping) -> str:
-        return e.expression.accept(Interpreter) 
+        return self.evaluate(e.expression)
 
     def visit_literal_expression(self, e : expr.Literal) -> str:
         return e.value 
 
     def visit_unary_expression(self, e : expr.Unary) -> str:
         if e.operator.type == tokens.TokenType.BANG: 
-            eval_temp = e.right.accept(Interpreter)
+            eval_temp = self.evaluate(e.right)
             return not eval_temp
         elif e.operator.type == tokens.TokenType.MINUS:
-            e.right = e.right.accept(Interpreter)
+            e.right = self.evaluate(e.right)
             if type(e.right) == float: 
                 return -e.right
             else: 
@@ -67,16 +72,16 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
             sys.exit()
         else: 
-            rhs = e.expression.accept(Interpreter)
+            rhs = self.evaluate(e.expression)
             state.Environment[e.name.name.value] = rhs
             self.temp[e.name.name.value] = rhs
             return state.Environment[e.name.name.value]
 
     def visit_call_expression(self, e : expr.Call):
-        callee = e.callee.accept(Interpreter)
+        callee = self.evaluate(e.callee)
         arguments = []
         for i in e.arguments:
-            arguments.append(i.accept(Interpreter))
+            arguments.append(self.evaluate(i))
 
         if not isinstance(callee, LoxCallable):
             errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
@@ -90,22 +95,24 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
     def visit_block_statement(self, s : stmt.Block):
         self.temp = state.Environment.copy()
-        Interpreter.interpret(s.statements)
+        self.interpret(s.statements)
         state.Environment = self.temp  
 
     def visit_if_statement(self, s : stmt.If):
-        if s.condition.accept(Interpreter): 
-            s.statement.accept(Interpreter) 
+        if self.evaluate(s.condition): 
+            self.interpret(s.statement)
         else:
             if s.else_branch: 
-                s.else_branch.accept(Interpreter)
+                self.interpret(s.else_branch)
 
     def visit_while_statement(self, s : stmt.While):
-        while s.condition.accept(Interpreter):
-            s.statement.accept(Interpreter)
+        while self.evaluate(s.condition):
+            self.interpret(s.statement)
 
     def visit_for_statement(self, s : stmt.For):
-        s.init.accept(Interpreter)
+        if isinstance(s.init, expr.Expr):
+            s.init = stmt.Expression(s.init)
+        self.interpret(s.init)
         if iter != None: 
             new_block_statements = stmt.Block([s.statement, stmt.Expression(s.iter)]) 
         else: 
@@ -114,24 +121,23 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             desugar = stmt.While(s.condition, new_block_statements)
         else: 
             desugar = stmt.While(True, new_block_statements)
-        desugar.accept(Interpreter)
+        self.interpret(desugar)
         
     def visit_print_statement(self, s : stmt.Print):
-        print(utils.loxify(s.expression.accept(Interpreter))) 
+        print(utils.loxify(self.evaluate(s.expression))) 
 
     def visit_scan_statement(self, s : stmt.Scan):
         temp = input() #fix later; shouldn't be input, should lex/parse the string
         state.Environment[s.variable.name.value] = temp
-        #print(utils.loxify(s.expression.accept(Interpreter))) 
 
     def visit_expression_statement(self, s : stmt.Expression):
-        return s.expression.accept(Interpreter)  
+        return self.evaluate(s.expression) 
     
     def visit_variable_statement(self, s : stmt.Var):
         try:
-            state.Environment[s.name.value] = s.initializer.accept(Interpreter) 
+            state.Environment[s.name.value] = self.evaluate(s.initializer)
         except:
             state.Environment[s.name.value] = None 
     
-    def visit_blank_statement(self, stmt):
+    def visit_blank_statement(self, s):
         pass 

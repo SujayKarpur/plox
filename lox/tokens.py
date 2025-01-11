@@ -7,9 +7,11 @@ from lox import errors
 
 class TokenType(enum.Enum):
 
+    #comments
     COMMENT = r'//.*\n'
     MULTI_LINE_COMMENT = r'/\*(.|\n)*\*/'
 
+    #punctuation
     LEFT_PAREN = r'\('
     RIGHT_PAREN = r'\)'
     LEFT_BRACE = r'\{'
@@ -17,6 +19,7 @@ class TokenType(enum.Enum):
     SEMICOLON = r';'
     COMMA = r','
 
+    #operators
     DOT = r'\.'
     PLUS = r'\+'
     MINUS = r'-' 
@@ -31,6 +34,7 @@ class TokenType(enum.Enum):
     LESSER_EQUAL = r'<='
     LESSER = r'<'
 
+    #literals/identifiers
     IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*' 
     STRING = r'"([^\\\"]*(\\(\\|n|t|\"))?[^\\\"]*)+"' 
     NUMBER = r'[0-9]+(\.[0-9]+)?' 
@@ -56,11 +60,12 @@ class TokenType(enum.Enum):
     WHILE = r'while'
 
 
-
+    #whitespace
     SPACE = r'\s'
     TAB = r'\t'
     NEWLINE = r'\n'
 
+    #error
     UNRECOGNIZABLE = r'(.|\n)+?'
 
 

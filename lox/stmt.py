@@ -50,7 +50,7 @@ class Block(Stmt):
     statements : List[Stmt]
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_block_statement(visitor, self)
+        return visitor.visit_block_statement(self)
 
 @dataclass
 class If(Stmt): 
@@ -59,7 +59,7 @@ class If(Stmt):
     else_branch : Stmt 
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_if_statement(visitor, self)
+        return visitor.visit_if_statement(self)
 
 @dataclass
 class While(Stmt): 
@@ -67,7 +67,7 @@ class While(Stmt):
     statement : Stmt 
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_while_statement(visitor, self)
+        return visitor.visit_while_statement(self)
 
 @dataclass
 class For(Stmt): 
@@ -77,28 +77,28 @@ class For(Stmt):
     statement : Stmt 
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_for_statement(visitor, self)
+        return visitor.visit_for_statement(self)
 
 @dataclass
 class Print(Stmt): 
     expression : expr.Expr
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_print_statement(visitor, self)
+        return visitor.visit_print_statement(self)
 
 @dataclass
 class Scan(Stmt): 
     variable : expr.Variable
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_scan_statement(visitor, self)
+        return visitor.visit_scan_statement(self)
 
 @dataclass
 class Expression(Stmt):
     expression : expr.Expr 
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_expression_statement(visitor, self)
+        return visitor.visit_expression_statement(self)
     
 @dataclass
 class Var(Stmt):
@@ -106,10 +106,10 @@ class Var(Stmt):
     initializer : expr.Expr
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_variable_statement(visitor, self)
+        return visitor.visit_variable_statement(self)
 
 @dataclass
 class Blank(Stmt):
 
     def accept(self, visitor: Visitor[R]):
-        return visitor.visit_blank_statement(visitor, self)
+        return visitor.visit_blank_statement(self)
