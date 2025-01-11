@@ -20,4 +20,20 @@ def lex(string, verbose=False):
         ignored_tokens = {tokens.TokenType.COMMENT, tokens.TokenType.MULTI_LINE_COMMENT, tokens.TokenType.SPACE, tokens.TokenType.NEWLINE, tokens.TokenType.TAB}
         lexed_tokens = list(filter(lambda i : i.type not in ignored_tokens, lexed_tokens)) 
     state.max_parser_position = len(lexed_tokens) - 1
-    return lexed_tokens
+    return lexed_tokens 
+
+class Lexer: 
+
+    def __init__(self):
+        self.position : int = 0
+        self.row : int = 0 
+        self.column : int = 0 
+
+    def match():
+        pass 
+
+    def action():
+        pass 
+    
+    def lex():
+        pass 

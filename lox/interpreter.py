@@ -8,6 +8,7 @@ from lox import state
 from lox import expr 
 from lox import stmt 
 from lox import utils
+from lox.loxcallable import LoxCallable
 
 
     
@@ -17,6 +18,9 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
     def interpret(statements : List[stmt.Stmt]):
         for i in statements:
             i.accept(Interpreter)
+
+    def evaluate(): 
+        pass 
 
     def visit_binary_expression(self, e : expr.Binary) -> str: 
         left = e.left.accept(Interpreter)
@@ -67,6 +71,22 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             state.Environment[e.name.name.value] = rhs
             self.temp[e.name.name.value] = rhs
             return state.Environment[e.name.name.value]
+
+    def visit_call_expression(self, e : expr.Call):
+        callee = e.callee.accept(Interpreter)
+        arguments = []
+        for i in e.arguments:
+            arguments.append(i.accept(Interpreter))
+
+        if not isinstance(callee, LoxCallable):
+            errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
+            sys.exit()
+        new_function : LoxCallable = LoxCallable(callee)
+        if len(arguments) != new_function.arity():
+            errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
+            sys.exit()
+        
+        return 
 
     def visit_block_statement(self, s : stmt.Block):
         self.temp = state.Environment.copy()
