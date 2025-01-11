@@ -26,6 +26,9 @@ class Visitor(Protocol[R]):
     def visit_variable_exression(self, expr : 'Variable') -> R: 
         pass 
 
+    def visit_assignment_expression(self, expr : 'Assignment') -> R:
+        pass 
+
 
 class Expr(ABC): 
     
@@ -70,3 +73,11 @@ class Variable(Expr):
 
     def accept(self, visitor: Visitor[R]) -> R:
         return visitor.visit_variable_exression(visitor, self)
+
+@dataclass
+class Assignment(Expr):
+    name : Variable 
+    expression : Expr 
+
+    def accept(self, visitor: Visitor[R]) -> R:
+        return visitor.visit_assignment_expression(visitor, self)

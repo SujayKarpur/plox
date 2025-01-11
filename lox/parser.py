@@ -65,7 +65,19 @@ def parse_statement() -> stmt.Stmt:
         return stmt.Expression(new_statement) 
         
 def parse_expression() -> expr.Expr:
-    return parse_equality() 
+    return parse_assignment()
+
+def parse_assignment() -> expr.Expr: 
+    if (identifier := consume(tokens.TokenType.IDENTIFIER, "", True)):
+        if consume(tokens.TokenType.EQUAL, "", True):
+            value = parse_expression()
+            name = expr.Variable(identifier)
+            return expr.Assignment(name, value) 
+        else: 
+            state.reset_parser(state.parser_position-1) 
+            return parse_equality()
+    else:
+        return parse_equality() 
 
 def parse_equality() -> expr.Expr:
     lhs = parse_comparison() 

@@ -43,6 +43,14 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             sys.exit()
         return state.Environment[e.name.value]
 
+    def visit_assignment_expression(self, e : expr.Assignment):
+        if e.name.name.value not in state.Environment: 
+            errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
+            sys.exit()
+        else: 
+            state.Environment[e.name.name.value] = e.expression.accept(Interpreter)
+            return state.Environment[e.name.name.value]
+
     def visit_print_statement(self, s : stmt.Print):
         print(utils.loxify(s.expression.accept(Interpreter))) 
 
