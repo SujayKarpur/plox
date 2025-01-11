@@ -1,4 +1,3 @@
-import re 
 import enum 
 import operator
 import typing 

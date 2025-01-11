@@ -1,10 +1,8 @@
 from lox import state 
 from lox import lexer 
 from lox import parser
-from lox import expr
 from lox import errortypes
 
-from lox import uglyprinter
 from lox.interpreter import Interpreter
 
 def run(string : str) -> None:
@@ -17,9 +15,11 @@ def run(string : str) -> None:
     
     alex = lexer.Lexer()
     lexed_tokens = alex.lex(string)
-    
+
     if lexed_tokens:
-        new = parser.parse(lexed_tokens)
-        #print(lexed_tokens)
+        print("lexed")
+        happy = parser.Parser(lexed_tokens)
+        new = happy.parse()
         if new: 
+            print("parsed")
             Interpreter.interpret(new)

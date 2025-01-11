@@ -5,6 +5,9 @@ from lox import tokens
 from lox import state
 from lox import errors
 
+
+
+
 class Lexer: 
 
 
@@ -56,7 +59,5 @@ class Lexer:
 
         
         self.lexed_tokens = list(filter(lambda i : i.type not in tokens.IGNORED_TOKENS, self.lexed_tokens)) 
-        state.max_parser_position = len(self.lexed_tokens) - 1
-
 
         return self.lexed_tokens 

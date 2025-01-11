@@ -1,220 +1,251 @@
 from typing import List, Union 
 import sys  
 
-from lox import state, errors, tokens
+from lox import state, errors, tokens, utils 
 from lox import expr, stmt
 
 
-LEXED_TOKENS : List[tokens.Token] 
-
-def supports_in_operator(obj):
-    return hasattr(obj, "__contains__")
 
 
-def parser_end() -> bool:
-    return state.parser_position > state.max_parser_position
+class Parser: 
 
 
-def consume(expected_token_types, error_message:str, optional:bool = False):
-    if not supports_in_operator(expected_token_types):
-        expected_token_types = [expected_token_types] 
-    if not parser_end() and LEXED_TOKENS[state.parser_position].type in expected_token_types:
-        state.reset_parser(state.parser_position+1)
-        return LEXED_TOKENS[state.parser_position-1] 
-    else:
-        if optional:
-            return None 
-        print("The state rn is ", state.parser_position, f"last token processed : {[LEXED_TOKENS[state.parser_position-1]]}")
-        errors.report("ParseError", state.current_file_name, 1, 1, error_message)
-        sys.exit()
-
-def match_without_consume(expected_token_types : Union[List[tokens.TokenType],tokens.TokenType]) -> bool: 
-    if not supports_in_operator(expected_token_types):
-        expected_token_types = [expected_token_types] 
-    if not parser_end() and LEXED_TOKENS[state.parser_position].type in expected_token_types:
-        return True 
-    else:
-        return False     
+    def __init__(self, lexed_tokens : List[tokens.Token]) -> None:
+        """ initialize parser with a list of lexed tokens """
+        self.position : int = 0 
+        self.LEXED_TOKENS : List[tokens.Token] = lexed_tokens
+        self.MAX_POSITION : int = len(lexed_tokens) - 1
 
 
-def parse_program() -> List[stmt.Stmt]: 
-    #print("I'm parsing program!")
-    statements: List[stmt.Stmt] = []
-    while not parser_end():
-        statements.append(parse_declaration())
-        #state.reset_parser(state.parser_position+1)
-    return statements
-
-def parse_declaration() -> stmt.Stmt:
-    if consume(tokens.TokenType.VAR, "", True):
-        name = consume(tokens.TokenType.IDENTIFIER, "Expected identifier")
-        if consume(tokens.TokenType.EQUAL, "", True): 
-            initializer = parse_expression()
-            consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
-            return stmt.Var(name, initializer) 
-        else:
-            consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
-            return stmt.Var(name, None)
-    else: 
-        return parse_statement()
-
-def parse_statement() -> stmt.Stmt: 
-    if consume(tokens.TokenType.IF, "", True):
-        consume(tokens.TokenType.LEFT_PAREN, "Expected '('!")
-        condition = parse_expression()
-        consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
-        if_statement = parse_statement()
-        if consume(tokens.TokenType.ELSE, "", True): 
-            else_statement = parse_statement()
-        else:
-            else_statement = None 
-        return stmt.If(condition, if_statement, else_statement) 
-    if consume(tokens.TokenType.WHILE, "", True):
-        consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `while`!")
-        condition = parse_expression()
-        consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
-        statement = parse_statement()
-        return stmt.While(condition, statement) 
-    if consume(tokens.TokenType.FOR, "", True):
-        consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `for`!")
-        if LEXED_TOKENS[state.parser_position].type == tokens.TokenType.VAR: 
-            init = parse_declaration() 
-        else: 
-            init = parse_statement()
-        condition = parse_statement()
-        if LEXED_TOKENS[state.parser_position].type != tokens.TokenType.RIGHT_PAREN:
-            iter = parse_expression()
-        else: 
-            iter = None 
-        consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
-        statement = parse_statement()
-        return stmt.For(init, condition, iter, statement) 
-    if consume(tokens.TokenType.PRINT, "", True):
-        new_statement = parse_expression()
-        consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
-        return stmt.Print(new_statement) 
-    elif consume(tokens.TokenType.SCAN, "", True):
-        name = consume(tokens.TokenType.IDENTIFIER, "Expected identifier")
-        consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
-        return stmt.Scan(expr.Variable(name)) 
-    elif consume(tokens.TokenType.LEFT_BRACE, "", True):
-        statements: List[stmt.Stmt] = []
-        while not parser_end() and not LEXED_TOKENS[state.parser_position].type == tokens.TokenType.RIGHT_BRACE:
-            statements.append(parse_declaration())
-        consume(tokens.TokenType.RIGHT_BRACE, "Expected }!")
-        return stmt.Block(statements) 
-    if consume(tokens.TokenType.SEMICOLON, "", True):
-        return stmt.Blank() 
-    else: 
-        new_statement = parse_expression()
-        consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
-        return stmt.Expression(new_statement) 
-        
-def parse_expression() -> expr.Expr:
-    return parse_assignment()
-
-def parse_assignment() -> expr.Expr: 
-    if (identifier := consume(tokens.TokenType.IDENTIFIER, "", True)):
-        if consume(tokens.TokenType.EQUAL, "", True):
-            value = parse_expression()
-            name = expr.Variable(identifier)
-            return expr.Assignment(name, value) 
-        else: 
-            state.reset_parser(state.parser_position-1) 
-            return parse_equality()
-    else:
-        return parse_logic_or() 
-
-def parse_logic_or() -> expr.Expr:
-    lhs = parse_logic_and() 
-    while (operator := consume(tokens.TokenType.OR, "", True)):
-        rhs = parse_logic_and()
-        lhs = expr.Logical(lhs, operator, rhs)
-    return lhs
-
-def parse_logic_and() -> expr.Expr: 
-    lhs = parse_equality() 
-    while (operator := consume(tokens.TokenType.AND, "", True)):
-        rhs = parse_equality()
-        lhs = expr.Logical(lhs, operator, rhs)
-    return lhs
-
-def parse_equality() -> expr.Expr:
-    lhs = parse_comparison() 
-    while (operator := consume(tokens.EQUALITY_OPERATORS, "", True)):
-        rhs = parse_comparison()
-        lhs = expr.Binary(lhs, operator, rhs)
-    return lhs
-
-def parse_comparison() -> expr.Expr:
-    lhs = parse_term() 
-    while (operator := consume(tokens.COMPARISON_OPERATORS, "", True)):
-        rhs = parse_term()
-        lhs = expr.Binary(lhs, operator, rhs)
-    return lhs
-
-def parse_term() -> expr.Expr:
-    lhs = parse_factor() 
-    while (operator := consume((tokens.TokenType.MINUS, tokens.TokenType.PLUS), "", True)):
-        rhs = parse_factor()
-        lhs = expr.Binary(lhs, operator, rhs)
-    return lhs
-
-def parse_factor() -> expr.Expr:
-    lhs = parse_unary() 
-    while (operator := consume((tokens.TokenType.TIMES, tokens.TokenType.DIVIDED_BY), "", True)):
-        rhs = parse_unary()
-        lhs = expr.Binary(lhs, operator, rhs)
-    return lhs
-
-def parse_unary() -> expr.Expr:
-    if (operator := consume(tokens.UNARY_OPERATORS, "", True)):
-        return expr.Unary(operator, parse_unary()) 
-    else: 
-        return parse_primary() 
-
-def parse_call():
-    callee = parse_primary()
-    while consume(tokens.TokenType.LEFT_PAREN, "", True):
-        if match_without_consume(tokens.TokenType.RIGHT_PAREN): 
-            break  
-        else: 
-            expression_list : List[expr.Expr] = []  
-            expression_list.append(parse_expression())
-            while consume(tokens.TokenType.COMMA, "", True):
-                expression_list.append(parse_expression())
-    else:
-        return callee 
-    consume(tokens.TokenType.RIGHT_PAREN, "Expected matching ')'!")
-    return expr.Call(callee, expression_list)
-
-def parse_primary():
-    match LEXED_TOKENS[state.parser_position].type:
-        case tokens.TokenType.IDENTIFIER: 
-            name = LEXED_TOKENS[state.parser_position]
-            state.reset_parser(state.parser_position+1)
-            return expr.Variable(name)
-        case temp_tok if temp_tok in tokens.LITERAL_OBJECTS: 
-            literal = LEXED_TOKENS[state.parser_position]
-            state.reset_parser(state.parser_position+1)
-            return expr.Literal(literal.value)
-        case temp_tok if temp_tok in tokens.LITERAL_CONSTANTS:
-            state.reset_parser(state.parser_position+1)
-            return expr.Literal(tokens.LITERAL_CONSTANTS[temp_tok])
-        case tokens.TokenType.LEFT_PAREN:
-            state.reset_parser(state.parser_position+1)
-            temp = parse_expression()
-            if not parser_end() and LEXED_TOKENS[state.parser_position].type == tokens.TokenType.RIGHT_PAREN:
-                state.reset_parser(state.parser_position+1)
-            return temp
-        case _: 
-            errors.report("ParseError", state.current_file_name, 1, 1, "Expected an expression!") 
+    def end(self) -> bool: 
+        """return true iff the parser has parsed all tokens"""
+        return self.position > self.MAX_POSITION
     
 
-def parse(lexed_tokens : List[tokens.Token]) -> List[stmt.Stmt]:
-    try: 
-        global LEXED_TOKENS
-        LEXED_TOKENS = lexed_tokens
-        return parse_program()
-    except:
-        return None 
+    def peek(self) -> tokens.Token: 
+        """return current token"""
+        return self.LEXED_TOKENS[self.position]
+
+
+    def match(self, expected_token_types: Union[List[tokens.TokenType],tokens.TokenType]) -> bool: 
+        """return true if the current token matches expected token(s)"""
+
+        if not utils.supports_in_operator(expected_token_types):
+            expected_token_types = [expected_token_types] 
+
+        if not self.end() and self.peek().type in expected_token_types:
+            return True 
+        else:
+            return False     
+
+
+    def consume(self, expected_token_types: Union[List[tokens.TokenType],tokens.TokenType], error_message:str, optional:bool = False):
+
+        if not utils.supports_in_operator(expected_token_types):
+            expected_token_types = [expected_token_types] 
+
+        if not self.end() and self.peek().type in expected_token_types:
+            saved = self.peek()
+            self.position += 1
+            return saved
+        else:
+            if optional:
+                return None 
+            print("The state rn is ", self.position, f"last token processed : {[self.LEXED_TOKENS[self.position-1]]}")
+            errors.report("ParseError", state.current_file_name, 1, 1, error_message)
+            sys.exit()
+
+
+    def parse_program(self) -> List[stmt.Stmt]: 
+        statements: List[stmt.Stmt] = []
+        while not self.end():
+            statements.append(self.parse_declaration())
+        return statements
+    
+
+    def parse_declaration(self) -> stmt.Stmt:
+        if self.consume(tokens.TokenType.VAR, "", True):
+            name = self.consume(tokens.TokenType.IDENTIFIER, "Expected identifier after `var`!")
+            if self.consume(tokens.TokenType.EQUAL, "", True): 
+                initializer = self.parse_expression()
+                self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
+                return stmt.Var(name, initializer) 
+            else:
+                self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
+                return stmt.Var(name, None)
+        else: 
+            return self.parse_statement()
+        
+
+
+    def parse_statement(self) -> stmt.Stmt: 
+
+        if self.consume(tokens.TokenType.IF, "", True):
+            self.consume(tokens.TokenType.LEFT_PAREN, "Expected '('!")
+            condition = self.parse_expression()
+            self.consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
+            if_statement = self.parse_statement()
+            if self.consume(tokens.TokenType.ELSE, "", True): 
+                else_statement = self.parse_statement()
+            else:
+                else_statement = None 
+            return stmt.If(condition, if_statement, else_statement) 
+        
+        elif self.consume(tokens.TokenType.WHILE, "", True):
+            self.consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `while`!")
+            condition = self.parse_expression()
+            self.consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
+            statement = self.parse_statement()
+            return stmt.While(condition, statement) 
+        
+        elif self.consume(tokens.TokenType.FOR, "", True):
+            self.consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `for`!")
+            if self.match(tokens.TokenType.VAR): 
+                init = self.parse_declaration() 
+            else: 
+                init = self.parse_statement()
+            condition = self.parse_statement()
+            if not self.match(tokens.TokenType.RIGHT_PAREN):
+                iter = self.parse_expression()
+            else: 
+                iter = None 
+            self.consume(tokens.TokenType.RIGHT_PAREN, "Expected ')'!")
+            statement = self.parse_statement()
+            return stmt.For(init, condition, iter, statement) 
+        
+        elif self.consume(tokens.TokenType.PRINT, "", True):
+            new_statement = self.parse_expression()
+            self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
+            return stmt.Print(new_statement) 
+        
+        elif self.consume(tokens.TokenType.SCAN, "", True):
+            name = self.consume(tokens.TokenType.IDENTIFIER, "Expected identifier")
+            self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
+            return stmt.Scan(expr.Variable(name)) 
+        
+        elif self.consume(tokens.TokenType.LEFT_BRACE, "", True):
+            statements: List[stmt.Stmt] = []
+            while not self.end() and not self.peek().type == tokens.TokenType.RIGHT_BRACE:
+                statements.append(self.parse_declaration())
+            self.consume(tokens.TokenType.RIGHT_BRACE, "Expected }!")
+            return stmt.Block(statements) 
+        
+        elif self.consume(tokens.TokenType.SEMICOLON, "", True):
+            return stmt.Blank() 
+        
+        else: 
+            new_statement = self.parse_expression()
+            self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
+            return stmt.Expression(new_statement) 
+
+
+
+    def parse_expression(self) -> expr.Expr:
+        return self.parse_assignment()
+
+
+    def parse_assignment(self) -> expr.Expr: 
+        if (identifier := self.consume(tokens.TokenType.IDENTIFIER, "", True)):
+            if self.consume(tokens.TokenType.EQUAL, "", True):
+                value = self.parse_expression()
+                name = expr.Variable(identifier)
+                return expr.Assignment(name, value) 
+            else: 
+                self.position -= 1
+                return self.parse_equality()
+        else:
+            return self.parse_logic_or() 
+        
+
+    def parse_logic_or(self) -> expr.Expr:
+        lhs = self.parse_logic_and() 
+        while (operator := self.consume(tokens.TokenType.OR, "", True)):
+            rhs = self.parse_logic_and()
+            lhs = expr.Logical(lhs, operator, rhs)
+        return lhs
+    
+
+    def parse_logic_and(self) -> expr.Expr: 
+        lhs = self.parse_equality() 
+        while (operator := self.consume(tokens.TokenType.AND, "", True)):
+            rhs = self.parse_equality()
+            lhs = expr.Logical(lhs, operator, rhs)
+        return lhs
+
+
+    def parse_equality(self) -> expr.Expr:
+        lhs = self.parse_comparison() 
+        while (operator := self.consume(tokens.EQUALITY_OPERATORS, "", True)):
+            rhs = self.parse_comparison()
+            lhs = expr.Binary(lhs, operator, rhs)
+        return lhs
+
+
+    def parse_comparison(self) -> expr.Expr:
+        lhs = self.parse_term() 
+        while (operator := self.consume(tokens.COMPARISON_OPERATORS, "", True)):
+            rhs = self.parse_term()
+            lhs = expr.Binary(lhs, operator, rhs)
+        return lhs
+
+
+    def parse_term(self) -> expr.Expr:
+        lhs = self.parse_factor() 
+        while (operator := self.consume((tokens.TokenType.MINUS, tokens.TokenType.PLUS), "", True)):
+            rhs = self.parse_factor()
+            lhs = expr.Binary(lhs, operator, rhs)
+        return lhs
+
+
+    def parse_factor(self) -> expr.Expr:
+        lhs = self.parse_unary() 
+        while (operator := self.consume((tokens.TokenType.TIMES, tokens.TokenType.DIVIDED_BY), "", True)):
+            rhs = self.parse_unary()
+            lhs = expr.Binary(lhs, operator, rhs)
+        return lhs
+
+
+    def parse_unary(self) -> expr.Expr:
+        if (operator := self.consume(tokens.UNARY_OPERATORS, "", True)):
+            return expr.Unary(operator, self.parse_unary()) 
+        else: 
+            return self.parse_call() 
+
+
+    def parse_call(self):
+        callee = self.parse_primary()
+        while self.consume(tokens.TokenType.LEFT_PAREN, "", True):
+            if self.match(tokens.TokenType.RIGHT_PAREN): 
+                break  
+            else: 
+                expression_list : List[expr.Expr] = []  
+                expression_list.append(self.parse_expression())
+                while self.consume(tokens.TokenType.COMMA, "", True):
+                    expression_list.append(self.parse_expression())
+        else:
+            return callee 
+        self.consume(tokens.TokenType.RIGHT_PAREN, "Expected matching ')'!")
+        return expr.Call(callee, expression_list)
+
+
+    def parse_primary(self):
+
+        if (name := self.consume(tokens.TokenType.IDENTIFIER, "", True)):
+            return expr.Variable(name)
+        elif (literal := self.consume(tokens.LITERAL_OBJECTS, "", True)):
+            return expr.Literal(literal.value)
+        elif (literal := self.consume(tokens.LITERAL_CONSTANTS, "", True)):
+            return expr.Literal(tokens.LITERAL_CONSTANTS[literal])
+        elif self.consume(tokens.TokenType.LEFT_PAREN, "", True):
+            temp = self.parse_expression()
+            self.consume(tokens.TokenType.RIGHT_PAREN, "Expected ')' following '('")
+            return temp 
+        else: 
+            errors.report("ParseError", state.current_file_name, 1, 1, "Expected an expression!")
+            sys.exit()
+
+    def parse(self) -> List[stmt.Stmt]:
+        try: 
+            return self.parse_program()
+        except:
+            return None 

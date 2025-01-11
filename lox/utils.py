@@ -13,3 +13,6 @@ def loxify(f):
         return "nil"
     else:
         return f 
+
+def supports_in_operator(obj):
+    return hasattr(obj, "__contains__")
