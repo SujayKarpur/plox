@@ -39,6 +39,10 @@ class Visitor(Protocol[R]):
     def visit_blank_statement(self, stmt : 'Blank') -> R:
         pass 
 
+    def visit_function_statement(self, stmt : 'Function') -> R: 
+        pass 
+    
+
 class Stmt(ABC):
 
     @abstractmethod
@@ -113,3 +117,13 @@ class Blank(Stmt):
 
     def accept(self, visitor: Visitor[R]):
         return visitor.visit_blank_statement(self)
+    
+
+@dataclass
+class Function(Stmt):
+    name : tokens.Token
+    params : List[tokens.Token]
+    body : List[Stmt]
+
+    def accept(self, visitor : Visitor[R]):
+        return visitor.visit_function_statement(self)

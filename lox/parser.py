@@ -68,6 +68,7 @@ class Parser:
 
     def parse_declaration(self) -> stmt.Stmt:
         """""" #update documentation after adding function declaration
+
         if self.consume(tokens.TokenType.VAR, "", True):
             name = self.consume(tokens.TokenType.IDENTIFIER, "Expected identifier after `var`!")
             if self.consume(tokens.TokenType.EQUAL, "", True): 
@@ -77,15 +78,41 @@ class Parser:
             else:
                 self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
                 return stmt.Var(name, None)
+        
+        elif self.consume(tokens.TokenType.FUN, "", True):
+            return self.parse_function()
+
         else: 
             return self.parse_statement()
+
+
+    def parse_function(self):
         
+        name = self.consume(tokens.TokenType.IDENTIFIER, "Require identifier after `fun`!")
+        self.consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `fun` !")
+
+        parameter_list : List[expr.Expr] = []
+
+        if not self.match(tokens.TokenType.RIGHT_PAREN):
+            parameter_list.append(self.parse_expression())   
+            while not self.match(tokens.TokenType.RIGHT_PAREN): 
+                self.consume(tokens.TokenType.COMMA, "Expected ',' between parameters!")
+                parameter_list.append(self.parse_expression())   
+        self.consume(tokens.TokenType.RIGHT_PAREN, "Expected matching ')'")
+
+        self.consume(tokens.TokenType.LEFT_BRACE, "Expected '{' after function ()!")
+        block = self.spec_parse_block()
+
+        return stmt.Function(name, parameter_list, block)
+
+
     def spec_parse_block(self) -> List[stmt.Stmt]: 
         statements: List[stmt.Stmt] = []
         while not self.end() and not self.peek().type == tokens.TokenType.RIGHT_BRACE:
             statements.append(self.parse_declaration())
         self.consume(tokens.TokenType.RIGHT_BRACE, "Expected }!") 
         return statements
+
 
     def parse_statement(self) -> stmt.Stmt: 
         """statement -> if_statement | while_statement | for_statement | print_statement | scan_statement | block | blank | expression_statement;
