@@ -1,5 +1,4 @@
-from lox import errors 
-from lox import state 
+
 
 class Environment: 
     
@@ -24,16 +23,16 @@ class Environment:
                 if self.enclosing: 
                     return self.enclosing.get(name)
             except:
-                self.parent.report(f"skibidi {self}  Variables must be declared before use!")
+                self.parent.report("Variables must be declared before use!")
     
     def set(self, name, value):
         try:
+            x = self.environment[name]
             self.environment[name] = value 
             return self.environment[name] 
         except: 
             try:
                 if self.enclosing: 
-                    #self.enclosing.environment[name] = value 
                     return self.enclosing.set(name, value)
             except: 
                 self.parent.report("Variables must be declared before use!")

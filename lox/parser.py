@@ -118,6 +118,7 @@ class Parser:
             else: 
                 init = self.parse_statement()
             condition = self.parse_statement()
+            condition = None if isinstance(condition, stmt.Blank) else condition.expression
             if not self.match(tokens.TokenType.RIGHT_PAREN):
                 iter = self.parse_expression()
             else: 

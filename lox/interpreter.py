@@ -1,6 +1,5 @@
 from typing import Any, List, Union 
 import sys 
-import copy 
 
 from lox import tokens 
 from lox import state
@@ -33,20 +32,21 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             statements.accept(self)
 
     def execute(self, statement : stmt.Stmt) -> None:
-        pass 
+        statement.accept(self) 
 
 
     def execute_block(self, statements : List[stmt.Stmt], envy : environment.Environment) -> None:
-        previous : environment.Environment = self.environment.copy()
+        previous : environment.Environment = self.environment#.copy()
         try:
-            self.environment = envy.copy()
+            self.environment = envy#.copy()
             for i in statements: 
                 self.interpret(i) 
         finally:
-            self.environment = previous.copy()
+            self.environment = previous#.copy()
 
 
     def evaluate(self, expression : expr.Expr): 
+        #print('eva', expression.accept(self) )
         return expression.accept(self) 
     
     
@@ -135,7 +135,10 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
 
     def visit_while_statement(self, s : stmt.While):
+        #print(s.condition)
+        #print(self.evaluate(s.condition), self.environment)
         while self.evaluate(s.condition):
+            #print('in cond')
             self.interpret(s.statement)
 
 
