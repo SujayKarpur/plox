@@ -22,6 +22,9 @@ class Environment:
             try: 
                 if self.enclosing: 
                     return self.enclosing.get(name)
+                else:
+                    raise EOFError
+                    #self.parent.report("Variables must be declared before use!")
             except:
                 self.parent.report("Variables must be declared before use!")
     
