@@ -5,17 +5,18 @@ import tty
 
 from lox import state  
 from lox.run import run 
-
+from lox import interpreter
 
 
 def run_prompt():
     print('Welcome to pLox!\n')
+    pretty = interpreter.Interpreter()
     while True: 
         try:
             print('lox> ', end='')
             line = input()
-            run(line+'\n')
-            state.reset_REPL()
+            run(line+'\n', pretty)
+            state.error_flag = False 
         except KeyboardInterrupt:
             print("\nKeyboard Interrupt (Press ctrl+D to exit)")
         except EOFError:
@@ -26,6 +27,3 @@ def run_prompt():
             break 
 
 
-
-if __name__ == '__main__':
-    run_prompt()

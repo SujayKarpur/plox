@@ -3,9 +3,9 @@ from lox import lexer
 from lox import parser
 from lox import errortypes
 
-from lox.interpreter import Interpreter
+from lox import interpreter
 
-def run(string : str) -> None:
+def run(string : str, interpreter_lox : interpreter.Interpreter) -> None:
 
     state.currently_executing_program = string
 
@@ -20,5 +20,7 @@ def run(string : str) -> None:
         happy = parser.Parser(lexed_tokens)
         new = happy.parse()
         if new: 
-            pretty = Interpreter()
-            pretty.interpret(new)
+            try:
+                interpreter_lox.interpret(new)
+            except:
+                pass 

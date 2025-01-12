@@ -18,7 +18,7 @@ current_file_name : str = '<stdin>'
 currently_executing_program : str = ''
 
 
-
+pretty = None 
 
 
 
@@ -26,15 +26,9 @@ def reset_REPL() -> None:
     reset_error_flag()
 
 
-Environment = {} 
 
-
-def reset_environment() -> None: 
-    pass 
 
 
 def reset_state() -> None:
     """set all global variables to default values"""
     reset_REPL()
-    reset_environment()
-    #add. reset env etc.

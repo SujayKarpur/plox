@@ -55,9 +55,6 @@ class Parser:
         else:
             if optional:
                 return None 
-            #print("The state rn is ", self.position, f"last token processed : {[self.LEXED_TOKENS[self.position-1]]}")
-            #errors.report("ParseError", state.current_file_name, 1, 1, error_message)
-            #sys.exit()
             self.report(self.peek() if not self.end() else self.peek_previous(), error_message)
 
 
