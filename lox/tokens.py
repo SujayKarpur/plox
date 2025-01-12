@@ -50,7 +50,7 @@ class TokenType(enum.Enum):
     IF = r'if' 
     NIL = r'nil' 
     OR = r'or'
-    PRINT = r'print'
+    #PRINT = r'print'
     RETURN = r'return'
     #SCAN = r'scan'
     SUPER = r'super'

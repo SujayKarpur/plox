@@ -58,7 +58,7 @@ class Scan(LoxCallable):
 class Print(LoxCallable):
 
     def call(self, interpreter, arguments): 
-        pass 
+        print(utils.loxify(arguments[0])) 
 
     def arity(self) -> int: 
         return 1  

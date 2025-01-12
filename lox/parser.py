@@ -125,10 +125,6 @@ class Parser:
             statement = self.parse_statement()
             return stmt.For(init, condition, iter, statement) 
         
-        elif self.consume(tokens.TokenType.PRINT, "", True):
-            new_statement = self.parse_expression()
-            self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
-            return stmt.Print(new_statement) 
                 
         elif self.consume(tokens.TokenType.LEFT_BRACE, "", True):
             return stmt.Block(self.spec_parse_block()) 
