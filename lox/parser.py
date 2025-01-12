@@ -68,7 +68,6 @@ class Parser:
 
     def parse_declaration(self) -> stmt.Stmt:
         """""" #update documentation after adding function declaration
-
         if self.consume(tokens.TokenType.VAR, "", True):
             name = self.consume(tokens.TokenType.IDENTIFIER, "Expected identifier after `var`!")
             if self.consume(tokens.TokenType.EQUAL, "", True): 
@@ -92,7 +91,6 @@ class Parser:
         """statement -> if_statement | while_statement | for_statement | print_statement | scan_statement | block | blank | expression_statement;
         rule for parsing different kinds of statements 
         """
-
         if self.consume(tokens.TokenType.IF, "", True):                        # if_statement -> if (condition) statement (else statement)? 
             self.consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `if`!")
             condition = self.parse_expression()
@@ -131,12 +129,7 @@ class Parser:
             new_statement = self.parse_expression()
             self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
             return stmt.Print(new_statement) 
-        
-        elif self.consume(tokens.TokenType.SCAN, "", True):
-            name = self.consume(tokens.TokenType.IDENTIFIER, "Expected identifier")
-            self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
-            return stmt.Scan(expr.Variable(name)) 
-        
+                
         elif self.consume(tokens.TokenType.LEFT_BRACE, "", True):
             return stmt.Block(self.spec_parse_block()) 
         
@@ -232,10 +225,12 @@ class Parser:
             if self.match(tokens.TokenType.RIGHT_PAREN): # call()
                 break  
             else: 
-
                 expression_list.append(self.parse_expression())      #call (expr)
                 while self.consume(tokens.TokenType.COMMA, "", True):
                     expression_list.append(self.parse_expression())           #call(expr1, expr2,...)
+                else: 
+                    if self.match(tokens.TokenType.RIGHT_PAREN):
+                        break  
         else:
             return callee 
         self.consume(tokens.TokenType.RIGHT_PAREN, "Expected matching ')'!")
@@ -243,7 +238,6 @@ class Parser:
 
 
     def parse_primary(self):
-
         if (name := self.consume(tokens.TokenType.IDENTIFIER, "", True)):
             return expr.Variable(name)
         elif (literal := self.consume(tokens.LITERAL_OBJECTS, "", True)):

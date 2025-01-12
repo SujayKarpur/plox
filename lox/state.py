@@ -3,7 +3,7 @@ global variables
 """
 
 #GLOBAL CONSTANTS:
-KEYWORDS = {'and', 'class', 'else', 'false', 'fun', 'for', 'if', 'nil', 'or', 'print', 'return', 'scan', 'super', 'this', 'true', 'var', 'while'}
+KEYWORDS = {'and', 'class', 'else', 'false', 'fun', 'for', 'if', 'nil', 'or', 'print', 'return', 'super', 'this', 'true', 'var', 'while'} #'scan'
 
 
 error_flag : bool = False 

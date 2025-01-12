@@ -52,7 +52,7 @@ class TokenType(enum.Enum):
     OR = r'or'
     PRINT = r'print'
     RETURN = r'return'
-    SCAN = r'scan'
+    #SCAN = r'scan'
     SUPER = r'super'
     THIS = r'this'
     TRUE = r'true' 

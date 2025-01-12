@@ -20,6 +20,7 @@ def run(string : str, interpreter_lox : interpreter.Interpreter) -> None:
         happy = parser.Parser(lexed_tokens)
         new = happy.parse()
         if new: 
+            #print(new)
             try:
                 interpreter_lox.interpret(new)
             except:
