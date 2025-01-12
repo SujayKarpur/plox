@@ -1,7 +1,8 @@
 import typing 
 
 def nth_line_of_string(string: str, line_number: int) -> str:
-    return "" 
+    list_of_strings = string.split('\n')
+    return list_of_strings[line_number]
 
 def loxify(f):
 

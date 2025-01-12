@@ -17,9 +17,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
     def interpret(self, statements : Union[List[stmt.Stmt],stmt.Stmt]):
         try:
-            print("trying", statements)
             for i in statements:
-                print(i)
                 i.accept(self)
         except: 
             statements.accept(self)
