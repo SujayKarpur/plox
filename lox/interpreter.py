@@ -7,10 +7,13 @@ from lox import expr
 from lox import stmt 
 from lox import utils
 from lox import environment
-from lox.loxcallable import LoxCallable, Clock, Scan, Print, LoxFunction
+from lox.loxcallable import LoxCallable, Clock, Scan, Print, LoxFunction, Return_Exception
 
 
-    
+
+
+
+
 
 class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 #later : make scan and print builtin functions instead of keywords
@@ -188,3 +191,9 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         
         func : LoxFunction = LoxFunction(s)
         self.environment.define(s.name.value, func)
+    
+    def visit_return_statement(self, s : stmt.Return):
+        value = None 
+        if s.value: 
+            value = self.evaluate(s.value)
+        raise Return_Exception(value)

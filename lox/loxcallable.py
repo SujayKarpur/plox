@@ -5,6 +5,10 @@ from lox import utils
 from lox import stmt
 from lox import environment
 
+class Return_Exception(Exception):
+    def __init__(self, value=None):
+        self.value = value
+
 
 class LoxCallable(Protocol): 
 
@@ -71,7 +75,10 @@ class LoxFunction(LoxCallable):
         envy = environment.Environment(interpreter, interpreter.globals)
         for i in range(len(self.declaration.params)):
             envy.define(self.declaration.params[i].value, arguments[i]) 
-        interpreter.execute_block(self.declaration.body, envy) 
+        try:
+            interpreter.execute_block(self.declaration.body, envy)
+        except Return_Exception as retex:
+            return retex.value
 
     def arity(self) -> int: 
         return len(self.declaration.params)  

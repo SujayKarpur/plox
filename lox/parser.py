@@ -159,6 +159,13 @@ class Parser:
         elif self.consume(tokens.TokenType.SEMICOLON, "", True):
             return stmt.Blank() 
         
+        elif self.consume(tokens.TokenType.RETURN, "", True):
+            return_value : expr.Expr = None 
+            if not self.match(tokens.TokenType.SEMICOLON):
+                return_value = self.parse_expression()
+            self.consume(tokens.TokenType.SEMICOLON, "Expected semicolon after return statement")
+            return stmt.Return(return_value)
+        
         else: 
             new_statement = self.parse_expression()
             self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")

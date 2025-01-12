@@ -41,7 +41,10 @@ class Visitor(Protocol[R]):
 
     def visit_function_statement(self, stmt : 'Function') -> R: 
         pass 
-    
+
+    def visit_return_statement(self, stmt : 'Return') -> R: 
+        pass 
+
 
 class Stmt(ABC):
 
@@ -127,3 +130,10 @@ class Function(Stmt):
 
     def accept(self, visitor : Visitor[R]):
         return visitor.visit_function_statement(self)
+    
+@dataclass
+class Return(Stmt):
+    value : expr.Expr 
+
+    def accept(self, visitor : Visitor[R]):
+        return visitor.visit_return_statement(self)
