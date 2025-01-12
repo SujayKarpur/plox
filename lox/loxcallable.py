@@ -2,7 +2,8 @@ from typing import Protocol
 from time import time 
 
 from lox import utils 
-
+from lox import stmt
+from lox import environment
 
 
 class LoxCallable(Protocol): 
@@ -58,3 +59,22 @@ class Print(LoxCallable):
 
     def __repr__(self) -> str: 
         return "<native fn print>"
+    
+
+
+class LoxFunction(LoxCallable):
+
+    def __init__(self, declaration : stmt.Function):
+        self.declaration = declaration
+
+    def call(self, interpreter, arguments): 
+        envy = environment.Environment(interpreter, interpreter.globals)
+        for i in range(len(self.declaration.params)):
+            envy.define(self.declaration.params[i].value, arguments[i]) 
+        interpreter.execute_block(self.declaration.body, envy) 
+
+    def arity(self) -> int: 
+        return len(self.declaration.params)  
+
+    def __repr__(self) -> str: 
+        return f"<user-defined fn {self.declaration.name}>"

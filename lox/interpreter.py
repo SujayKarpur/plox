@@ -7,7 +7,7 @@ from lox import expr
 from lox import stmt 
 from lox import utils
 from lox import environment
-from lox.loxcallable import LoxCallable, Clock, Scan, Print 
+from lox.loxcallable import LoxCallable, Clock, Scan, Print, LoxFunction
 
 
     
@@ -182,3 +182,9 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
     def visit_blank_statement(self, s):
         pass 
+
+
+    def visit_function_statement(self, s : stmt.Function):
+        
+        func : LoxFunction = LoxFunction(s)
+        self.environment.define(s.name.value, func)
