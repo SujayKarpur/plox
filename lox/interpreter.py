@@ -3,7 +3,6 @@ import sys
 import copy 
 
 from lox import tokens 
-from lox import errors
 from lox import state
 from lox import expr 
 from lox import stmt 
@@ -16,12 +15,14 @@ from lox.loxcallable import LoxCallable
 
 class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
+
     def __init__(self):
-        self.environment = environment.Environment()
+        self.environment = environment.Environment(self)
         self.last_line = 1
         self.last_executed_statement = None 
 
-    def interpret(self, statements : Union[List[stmt.Stmt],stmt.Stmt]):
+
+    def interpret(self, statements : Union[List[stmt.Stmt],stmt.Stmt]) -> None:
         if type(statements) == list:
             for i in statements:
                 self.last_executed_statement = i
@@ -30,6 +31,19 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         else: 
             self.last_executed_statement = statements
             statements.accept(self)
+
+    def execute(self, statement : stmt.Stmt) -> None:
+        pass 
+
+
+    def execute_block(self, statements : List[stmt.Stmt], envy : environment.Environment) -> None:
+        previous : environment.Environment = self.environment.copy()
+        try:
+            self.environment = envy.copy()
+            for i in statements: 
+                self.interpret(i) 
+        finally:
+            self.environment = previous.copy()
 
 
     def evaluate(self, expression : expr.Expr): 
@@ -42,7 +56,6 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         print(f"RuntimeError: {message}") 
         state.error_flag = True 
         sys.exit()
-
 
 
     def visit_binary_expression(self, e : expr.Binary) -> str: 
@@ -85,21 +98,12 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
     
 
     def visit_variable_exression(self, e : expr.Variable):
-        try:
-            return self.environment.get(e.name.value)
-        except:
-            errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use KSY!")
-            sys.exit()
+        return self.environment.get(e.name.value)
     
 
     def visit_assignment_expression(self, e : expr.Assignment):
-        try:
-            current = self.environment.get(e.name.name.value)
-            rhs = self.evaluate(e.expression)
-            return self.environment.set(e.name.name.value, rhs)
-        except:
-            errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
-            sys.exit()
+        rhs = self.evaluate(e.expression)
+        return self.environment.set(e.name.name.value, rhs)
 
 
     def visit_call_expression(self, e : expr.Call):
@@ -111,19 +115,15 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             arguments.append(self.evaluate(i))
 
         if not isinstance(callee, LoxCallable):
-            errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
-            sys.exit()
+            self.report("Variables must be declared before use!")
         new_function : LoxCallable = LoxCallable(callee)
         if len(arguments) != new_function.arity():
-            errors.report("RuntimeError", state.current_file_name, 1, 1, "Variables must be declared before use!")
-            sys.exit()
+            self.report("Variables must be declared before use!")
         return 
 
 
     def visit_block_statement(self, s : stmt.Block):
-        self.temp = state.Environment.copy()
-        self.interpret(s.statements)
-        state.Environment = self.temp  
+        self.execute_block(s.statements, environment.Environment(self, self.environment))
 
 
     def visit_if_statement(self, s : stmt.If):
@@ -160,11 +160,11 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
     def visit_scan_statement(self, s : stmt.Scan):
         temp = input() #fix later; shouldn't be input, should lex/parse the string
-        state.Environment[s.variable.name.value] = temp
+        self.environment.set(s.variable.name.value, temp)
 
 
     def visit_expression_statement(self, s : stmt.Expression):
-        return self.evaluate(s.expression) 
+        self.evaluate(s.expression) 
     
 
     def visit_variable_statement(self, s : stmt.Var):

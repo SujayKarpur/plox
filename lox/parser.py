@@ -81,7 +81,12 @@ class Parser:
         else: 
             return self.parse_statement()
         
-
+    def spec_parse_block(self) -> List[stmt.Stmt]: 
+        statements: List[stmt.Stmt] = []
+        while not self.end() and not self.peek().type == tokens.TokenType.RIGHT_BRACE:
+            statements.append(self.parse_declaration())
+        self.consume(tokens.TokenType.RIGHT_BRACE, "Expected }!") 
+        return statements
 
     def parse_statement(self) -> stmt.Stmt: 
         """statement -> if_statement | while_statement | for_statement | print_statement | scan_statement | block | blank | expression_statement;
@@ -132,11 +137,7 @@ class Parser:
             return stmt.Scan(expr.Variable(name)) 
         
         elif self.consume(tokens.TokenType.LEFT_BRACE, "", True):
-            statements: List[stmt.Stmt] = []
-            while not self.end() and not self.peek().type == tokens.TokenType.RIGHT_BRACE:
-                statements.append(self.parse_declaration())
-            self.consume(tokens.TokenType.RIGHT_BRACE, "Expected }!")
-            return stmt.Block(statements) 
+            return stmt.Block(self.spec_parse_block()) 
         
         elif self.consume(tokens.TokenType.SEMICOLON, "", True):
             return stmt.Blank() 
