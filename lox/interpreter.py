@@ -123,13 +123,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         if len(arguments) != callee.arity():
             self.report(f"The function expected {callee.arity()} arguments but received {len(arguments)} arguments")
 
-
-        if isinstance(callee, Scan):
-            arguments[0] = self.evaluate(e.arguments[0])
-            arguments[1] = e.arguments[1]
-            callee.call(self, arguments)
-        else: 
-            return callee.call(self, arguments)
+        return callee.call(self, arguments)
 
 
     def visit_block_statement(self, s : stmt.Block):

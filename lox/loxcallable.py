@@ -38,17 +38,10 @@ class Scan(LoxCallable):
             temp = input()
         else:
             temp = float(input())
-
-        
-        try:
-            interpreter.environment.set(arguments[1].name.value, temp)
-        except:
-            interpreter.report("Error in scanning")
-
+        return temp
 
     def arity(self) -> int: 
-        return 2 
-
+        return 1
 
     def __repr__(self) -> str: 
         return "<native fn scan>"
