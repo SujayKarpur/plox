@@ -1,3 +1,0 @@
-"""
-lox programming language
-"""
