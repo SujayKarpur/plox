@@ -1,0 +1,19 @@
+fun fibonacci(n)
+{
+    if (n <= 2)
+        return n-1;
+    else
+        return fibonacci(n-1) + fibonacci(n-2);
+}
+
+
+print("Program to print the first n fibonacci numbers!");
+print("Enter n : ");
+var n = scan("num");
+var start_time = clock();
+for (var i = 1; i<=n; i=i+1)
+    print(fibonacci(i));
+
+var end_time = clock();
+print("Printed. Time taken : ");
+print(end_time-start_time);
