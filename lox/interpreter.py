@@ -7,19 +7,22 @@ from lox import expr
 from lox import stmt 
 from lox import utils
 from lox import environment
-from lox.loxcallable import LoxCallable
+from lox.loxcallable import LoxCallable, Clock, Scan, Print 
 
 
     
 
 class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
-
+#later : make scan and print builtin functions instead of keywords
 
     def __init__(self):
-        self.environment = environment.Environment(self)
+        self.globals = environment.Environment(self)
+        self.environment = self.globals
         self.last_line = 1
         self.last_executed_statement = None 
-
+        self.globals.define('clock', Clock())
+        self.globals.define('scan', Scan())
+        self.globals.define('print', Print())
 
     def interpret(self, statements : Union[List[stmt.Stmt],stmt.Stmt]) -> None:
         if type(statements) == list:
@@ -109,17 +112,19 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
     def visit_call_expression(self, e : expr.Call):
 
         callee = self.evaluate(e.callee)
+        #print(LoxCallable(callee))
+        print(callee)
         arguments = []
-
         for i in e.arguments:
             arguments.append(self.evaluate(i))
 
-        if not isinstance(callee, LoxCallable):
-            self.report("Variables must be declared before use!")
-        new_function : LoxCallable = LoxCallable(callee)
-        if len(arguments) != new_function.arity():
-            self.report("Variables must be declared before use!")
-        return 
+        if not hasattr(callee, "call"):
+            self.report("can't call a non-callable object")
+
+        if len(arguments) != callee.arity():
+            self.report(f"The function expected {callee.arity()} arguments but received {len(arguments)} arguments")
+
+        return callee.call(self, arguments)
 
 
     def visit_block_statement(self, s : stmt.Block):
@@ -135,10 +140,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
 
     def visit_while_statement(self, s : stmt.While):
-        #print(s.condition)
-        #print(self.evaluate(s.condition), self.environment)
         while self.evaluate(s.condition):
-            #print('in cond')
             self.interpret(s.statement)
 
 

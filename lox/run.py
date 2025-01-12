@@ -24,3 +24,5 @@ def run(string : str, interpreter_lox : interpreter.Interpreter) -> None:
                 interpreter_lox.interpret(new)
             except:
                 pass 
+        else:
+            print("no parse")

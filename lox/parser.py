@@ -217,6 +217,8 @@ class Parser:
 
 
     def parse_unary(self) -> expr.Expr:
+        """unary -> !unary | -unary | call"""
+
         if (operator := self.consume(tokens.UNARY_OPERATORS, "", True)):
             return expr.Unary(operator, self.parse_unary()) 
         else: 
@@ -225,14 +227,15 @@ class Parser:
 
     def parse_call(self):
         callee = self.parse_primary()
+        expression_list : List[expr.Expr] = []  
         while self.consume(tokens.TokenType.LEFT_PAREN, "", True):
-            if self.match(tokens.TokenType.RIGHT_PAREN): 
+            if self.match(tokens.TokenType.RIGHT_PAREN): # call()
                 break  
             else: 
-                expression_list : List[expr.Expr] = []  
-                expression_list.append(self.parse_expression())
+
+                expression_list.append(self.parse_expression())      #call (expr)
                 while self.consume(tokens.TokenType.COMMA, "", True):
-                    expression_list.append(self.parse_expression())
+                    expression_list.append(self.parse_expression())           #call(expr1, expr2,...)
         else:
             return callee 
         self.consume(tokens.TokenType.RIGHT_PAREN, "Expected matching ')'!")
