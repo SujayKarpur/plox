@@ -13,8 +13,8 @@ def run(string : str) -> None:
         print("\n\nLexer uninitialized due to errors caught before Lexing!\n")
         return [] 
     
-    alex = lexer.Lexer()
-    lexed_tokens = alex.lex(string)
+    alex = lexer.Lexer(string)
+    lexed_tokens = alex.lex()
 
     if lexed_tokens:
         happy = parser.Parser(lexed_tokens)

@@ -4,7 +4,6 @@ import sys
 
 from lox import tokens
 from lox import state
-from lox import errors
 from lox import utils 
 
 
@@ -13,10 +12,13 @@ from lox import utils
 class Lexer: 
 
 
-    def __init__(self):
+    def __init__(self, string : str):
         self.position : int = 0
         self.row : int = 0 
-        self.column : int = 0 
+        self.column : int = 0
+        self.string : str = string  
+        self.MAX_POSITION : int = len(string)
+        self.lexed_tokens : List[tokens.Token] = [] 
 
 
     def match_token(self):
@@ -50,17 +52,12 @@ class Lexer:
                 pass 
 
 
-    def lex(self, string : str):
-
-        self.string : str = string  
-        self.MAX_POSITION : int = len(string)
-        self.lexed_tokens : List[tokens.Token] = []
+    def lex(self):
 
         while self.position < self.MAX_POSITION:
             new_token = self.match_token()
             self.lexed_tokens.append(new_token)
 
-        
         self.lexed_tokens = list(filter(lambda i : i.type not in tokens.IGNORED_TOKENS, self.lexed_tokens)) 
 
         return self.lexed_tokens 

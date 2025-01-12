@@ -1,7 +1,7 @@
 from typing import List, Union 
 import sys  
 
-from lox import state, errors, tokens, utils 
+from lox import state, tokens, utils 
 from lox import expr, stmt
 
 
@@ -23,6 +23,11 @@ class Parser:
     def peek(self) -> tokens.Token: 
         """return current token"""
         return self.LEXED_TOKENS[self.position]
+
+
+    def peek_previous(self) -> tokens.Token:
+        """return previously parsed token"""
+        return self.LEXED_TOKENS[self.position-1]
 
 
     def match(self, expected_token_types: Union[List[tokens.TokenType],tokens.TokenType]) -> bool: 
@@ -50,9 +55,10 @@ class Parser:
         else:
             if optional:
                 return None 
-            print("The state rn is ", self.position, f"last token processed : {[self.LEXED_TOKENS[self.position-1]]}")
-            errors.report("ParseError", state.current_file_name, 1, 1, error_message)
-            sys.exit()
+            #print("The state rn is ", self.position, f"last token processed : {[self.LEXED_TOKENS[self.position-1]]}")
+            #errors.report("ParseError", state.current_file_name, 1, 1, error_message)
+            #sys.exit()
+            self.report(self.peek() if not self.end() else self.peek_previous(), error_message)
 
 
     def parse_program(self) -> List[stmt.Stmt]: 
@@ -247,8 +253,7 @@ class Parser:
             self.consume(tokens.TokenType.RIGHT_PAREN, "Expected ')' following '('")
             return temp 
         else: 
-            errors.report("ParseError", state.current_file_name, 1, 1, "Expected an expression!")
-            sys.exit()
+            self.report(self.peek(), "expected expression!")
 
 
     def parse(self) -> List[stmt.Stmt]:
@@ -257,3 +262,14 @@ class Parser:
             return self.parse_program()
         except:
             return None 
+        
+
+    def report(self, token_with_error : tokens.Token, message : str) -> None:
+        
+        error_column = token_with_error.column + (len(token_with_error.value) if self.end() else 0)
+        print(f"file {state.current_file_name}, line {token_with_error.row+1}, column {error_column}")
+        print(f"{utils.nth_line_of_string(state.currently_executing_program, token_with_error.row)}")
+        print(" " * (error_column) + "^")
+        print(f"ParseError: {message}")
+        state.error_flag = True 
+        sys.exit()
