@@ -74,7 +74,7 @@ class LoxFunction(LoxCallable):
     def call(self, interpreter, arguments): 
         envy = environment.Environment(interpreter, interpreter.globals)
         for i in range(len(self.declaration.params)):
-            envy.define(self.declaration.params[i].value, arguments[i]) 
+            envy.define(self.declaration.params[i].name.value, arguments[i]) 
         try:
             interpreter.execute_block(self.declaration.body, envy)
         except Return_Exception as retex:

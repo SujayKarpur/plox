@@ -113,10 +113,8 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
 
     def visit_call_expression(self, e : expr.Call):
-
         callee = self.evaluate(e.callee)
         arguments = []
-
         for i in e.arguments:
             arguments.append(self.evaluate(i))
 
@@ -125,7 +123,6 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
         if len(arguments) != callee.arity():
             self.report(f"The function expected {callee.arity()} arguments but received {len(arguments)} arguments")
-
         return callee.call(self, arguments)
 
 
