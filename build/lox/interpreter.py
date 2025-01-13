@@ -121,7 +121,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         if not hasattr(callee, "call"):
             self.report("can't call a non-callable object")
 
-        if len(arguments) != callee.arity():
+        if not isinstance(callee, Print) and len(arguments) != callee.arity():
             self.report(f"The function expected {callee.arity()} arguments but received {len(arguments)} arguments")
         return callee.call(self, arguments)
 

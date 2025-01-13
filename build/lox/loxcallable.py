@@ -56,7 +56,9 @@ class Scan(LoxCallable):
 class Print(LoxCallable):
 
     def call(self, interpreter, arguments): 
-        print(utils.loxify(arguments[0])) 
+        for x in arguments:
+            print(utils.loxify(x), end=' ')
+        print() 
 
     def arity(self) -> int: 
         return 1  
