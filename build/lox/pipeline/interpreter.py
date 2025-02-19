@@ -7,7 +7,7 @@ from lox import expr
 from lox import stmt 
 from lox import utils
 from lox import environment
-from lox.loxcallable import LoxCallable, Clock, Scan, Print, LoxFunction, Return_Exception
+from lox.loxcallable import LoxCallable, Clock, Scan, Print, LoxFunction, LoxLambda, Return_Exception
 
 
 
@@ -50,6 +50,16 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             self.environment = previous
 
 
+    def evaluate_block(self, expression : expr.Expr, envy : environment.Environment):
+        previous : environment.Environment = self.environment
+        try:
+            self.environment = envy
+            a = self.evaluate(expression)
+        finally:
+            self.environment = previous
+            return a 
+        
+        
     def evaluate(self, expression : expr.Expr): 
         return expression.accept(self) 
     
@@ -222,3 +232,6 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         for i in e.value:
             new.append(self.evaluate(i))
         return new 
+    
+    def visit_lambda_expression(self, e : expr.Lambda):
+        return LoxLambda(e)

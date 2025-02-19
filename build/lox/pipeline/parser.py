@@ -46,7 +46,11 @@ class Parser:
     def peek_previous(self) -> tokens.Token:
         """return previously parsed token"""
         return self.LEXED_TOKENS[self.position-1]
-
+    
+    
+    def peek_next(self) -> tokens.Token:
+        """"""
+        return self.LEXED_TOKENS[self.position+1]
 
     def match(self, expected_token_types: Union[List[tokens.TokenType],tokens.TokenType]) -> bool: 
         """return true if the current token matches expected token(s)"""
@@ -55,6 +59,17 @@ class Parser:
             expected_token_types = [expected_token_types] 
 
         if not self.end() and self.peek().type in expected_token_types:
+            return True 
+        else:
+            return False     
+        
+    def match_next(self, expected_token_types: Union[List[tokens.TokenType],tokens.TokenType]) -> bool: 
+        """return true if the next token matches expected token(s)"""
+
+        if not utils.supports_in_operator(expected_token_types):
+            expected_token_types = [expected_token_types] 
+
+        if not self.end() and self.peek_next().type in expected_token_types:
             return True 
         else:
             return False     
@@ -100,9 +115,12 @@ class Parser:
                 self.consume(tokens.TokenType.SEMICOLON, "Missing semicolon")
                 return stmt.Var(name, None)
         
-        elif self.consume(tokens.TokenType.FUN, "", True):
-            return self.parse_function()
-
+        elif self.match(tokens.TokenType.FUN):
+            if self.match_next(tokens.TokenType.IDENTIFIER):
+                self.consume(tokens.TokenType.FUN, "")
+                return self.parse_function()
+            else:
+                return self.parse_expression()
         else: 
             return self.parse_statement()
 
@@ -209,8 +227,31 @@ class Parser:
                 self.position -= 1
                 return self.parse_equality()
         else:
-            return self.parse_logic_or() 
+            return self.parse_anon_function()
+
+
+    def parse_anon_function(self):
+
+        if not self.consume(tokens.TokenType.FUN, "", True):
+            return self.parse_logic_or()
         
+        self.consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `fun` !")
+
+        parameter_list : List[expr.Expr] = []
+
+        if not self.match(tokens.TokenType.RIGHT_PAREN):
+            parameter_list.append(self.parse_expression())   
+            while not self.match(tokens.TokenType.RIGHT_PAREN): 
+                self.consume(tokens.TokenType.COMMA, "Expected ',' between parameters!")
+                parameter_list.append(self.parse_expression())   
+        self.consume(tokens.TokenType.RIGHT_PAREN, "Expected matching ')'")
+
+        self.consume(tokens.TokenType.EQUAL, "Expected '=' after anonymous function!")
+        self.consume(tokens.TokenType.GREATER, "Expected '>' after anonymous function!")
+        
+        e = self.parse_expression()
+        return expr.Lambda(parameter_list, e)
+
 
     def parse_logic_or(self) -> expr.Expr:
         lhs = self.parse_logic_and() 

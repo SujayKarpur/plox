@@ -3,7 +3,7 @@ from functools import reduce
 from time import time 
 
 from lox import utils 
-from lox import stmt
+from lox import stmt, expr 
 from lox import environment
 
 class Return_Exception(Exception):
@@ -123,3 +123,27 @@ class LoxFunction(LoxCallable):
 
     def __repr__(self) -> str: 
         return f"<user-defined fn {self.declaration.name}>"
+
+
+
+class LoxLambda(LoxCallable):
+
+    def __init__(self, expression : expr.Lambda):
+        self.expression = expression 
+
+    def call(self, interpreter, arguments):
+        envy = environment.Environment(interpreter, interpreter.globals)
+        for i in range(len(self.expression.parameters)):
+            envy.define(self.expression.parameters[i].name.value, arguments[i])      
+
+        try:   
+            #print(interpreter.evaluate_block(self.expression.expression, envy))
+            return interpreter.evaluate_block(self.expression.expression, envy)
+        except Return_Exception as retex:
+            return retex.value
+
+    def arity(self) -> int:
+        return len(self.expression.parameters) 
+
+    def __repr__(self) -> str: 
+        return f"<user-defined anonymous function>"

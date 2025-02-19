@@ -44,6 +44,9 @@ class Visitor(Protocol[R]):
     def visit_list_expression(self, expr : 'ListExpr') -> R:
         pass 
 
+    def visit_lambda_expression(self, expr : 'Lambda') -> R:
+        pass 
+
 class Expr(ABC): 
     
     @abstractmethod
@@ -138,3 +141,12 @@ class ListExpr(Expr):
 
     def accept(self, visitor: Visitor[R]) -> R:
         return visitor.visit_list_expression(self)
+    
+
+@dataclass
+class Lambda(Expr):
+    parameters : List[Token]
+    expression : Expr 
+
+    def accept(self, visitor: Visitor[R]) -> R:
+        return visitor.visit_lambda_expression(self)
