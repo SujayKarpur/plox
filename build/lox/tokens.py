@@ -61,6 +61,8 @@ class TokenType(enum.Enum):
     TRUE = r'true' 
     VAR = r'var' 
     WHILE = r'while'
+    EACH = r'each'
+    IN = r'in'
 
 
     #whitespace

@@ -104,6 +104,18 @@ class Reduce(LoxCallable):
         return "<native fn reduce>"
 
 
+class Len(LoxCallable):
+
+    def call(self, interpreter, arguments):
+        return len(arguments[0]) 
+
+    def arity(self) -> int: 
+        return 1
+    
+    def __repr__(self) -> str:
+        return "<native fn len>"
+
+
 class LoxFunction(LoxCallable):
 
     def __init__(self, declaration : stmt.Function):

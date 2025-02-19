@@ -7,7 +7,7 @@ from lox import expr
 from lox import stmt 
 from lox import utils
 from lox import environment
-from lox.loxcallable import LoxCallable, Clock, Scan, Print, LoxFunction, LoxLambda, Return_Exception
+from lox.loxcallable import LoxCallable, Clock, Scan, Print, Len, LoxFunction, LoxLambda, Return_Exception
 
 
 
@@ -25,6 +25,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         self.globals.define('clock', Clock())
         self.globals.define('scan', Scan())
         self.globals.define('print', Print())
+        self.globals.define('len', Len())
 
     def interpret(self, statements : Union[List[stmt.Stmt],stmt.Stmt]) -> None:
         if type(statements) == list:
@@ -59,7 +60,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             self.environment = previous
             return a 
         
-        
+
     def evaluate(self, expression : expr.Expr): 
         return expression.accept(self) 
     
@@ -187,6 +188,14 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         else: 
             desugar = stmt.While(True, new_block_statements)
         self.interpret(desugar)
+
+
+    def visit_foreach_statement(self, s : stmt.ForEach):
+        init = stmt.Var(s.itervar, expr.Literal(0))
+        condition = expr.Binary(expr.Variable(s.itervar), tokens.TokenType.LESSER, expr.Call(Len(), s.listvar))
+        iter = (expr.Assignment(s.itervar, expr.Binary(expr.Variable(s.itervar), tokens.TokenType.PLUS, expr.Literal(1))))
+        desugar = stmt.For(init, condition, iter, s.statement)
+        self.interpret(desugar)
         
 
     def visit_print_statement(self, s : stmt.Print):
@@ -228,10 +237,10 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
     
     def visit_list_expression(self, e : expr.ListExpr):
         new = []
-        print(e.value)
         for i in e.value:
             new.append(self.evaluate(i))
         return new 
     
     def visit_lambda_expression(self, e : expr.Lambda):
         return LoxLambda(e)
+    

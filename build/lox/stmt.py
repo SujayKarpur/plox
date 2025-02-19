@@ -45,6 +45,9 @@ class Visitor(Protocol[R]):
     def visit_return_statement(self, stmt : 'Return') -> R: 
         pass 
 
+    def visit_foreach_statement(self, stmt : 'ForEach') -> R:
+        pass 
+
 
 class Stmt(ABC):
 
@@ -85,6 +88,16 @@ class For(Stmt):
 
     def accept(self, visitor: Visitor[R]):
         return visitor.visit_for_statement(self)
+    
+
+@dataclass
+class ForEach(Stmt):
+    itervar : expr.Variable
+    listvar : expr.ListExpr 
+    statement : Stmt 
+
+    def accept(self, visitor: Visitor[R]):
+        return visitor.visit_foreach_statement(self) 
 
 @dataclass
 class Print(Stmt): 
