@@ -19,6 +19,8 @@ class TokenType(enum.Enum):
     RIGHT_BRACE = r'\}'
     SEMICOLON = r';'
     COMMA = r','
+    LEFT_SQUARE = r'\['
+    RIGHT_SQUARE = r'\]'
 
     #operators
     DOT = r'\.'
@@ -34,12 +36,14 @@ class TokenType(enum.Enum):
     GREATER = r'>'
     LESSER_EQUAL = r'<='
     LESSER = r'<'
+    QUESTION = r'\?'
+    COLON = r':'
 
     #literals/identifiers
     IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*' 
     STRING = r'"([^\\\"]*(\\(\\|n|t|\"))?[^\\\"]*)+"' 
     NUMBER = r'[0-9]+(\.[0-9]+)?' 
-    #LIST = r''
+    LIST = r'\[\]'
 
     #keywords
     AND = r'and'
@@ -88,8 +92,10 @@ class Token:
 
 
 def safify(fun : typing.Callable) -> typing.Callable:
-    if fun in {operator.add, operator.sub, operator.mul, operator.truediv}:
-        return lambda a, b : fun(a,b) if (type(a) == type(b) == float) else errors.report("RuntimeError", state.current_file_name, 1,1, f"Can't {a} {b}")
+    if fun in {operator.add, operator.sub, operator.truediv}:
+        return lambda a, b : fun(a,b) if (type(a) == type(b)) else errors.report("RuntimeError", state.current_file_name, 1,1, f"Can't {a} {b}")
+    elif fun in {operator.mul}:
+        return lambda a, b : fun(int(a),b) if (type(a) == float) else (fun(a,int(b)) if (type(b) == float) else errors.report("RuntimeError", state.current_file_name, 1,1, f"Can't {a} {b}"))
     else:
         return lambda a, b : fun(a,b) if (type(a) == type(b)) else errors.report("RuntimeError", state.current_file_name, 1,1, "Can't ")
 
@@ -126,6 +132,7 @@ COMPARISON_OPERATORS = {
 LITERAL_OBJECTS = {
                         TokenType.NUMBER, 
                         TokenType.STRING, 
+                        TokenType.LIST
                   }
 
 LITERAL_CONSTANTS = {

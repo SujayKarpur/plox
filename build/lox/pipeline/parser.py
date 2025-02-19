@@ -299,7 +299,15 @@ class Parser:
             temp = self.parse_expression()
             self.consume(tokens.TokenType.RIGHT_PAREN, "Expected ')' following '('")
             return temp 
+        elif self.consume(tokens.TokenType.LEFT_SQUARE, "", True):
+            literal_list = []
+            literal_list.append(self.parse_primary())
+            while self.consume(tokens.TokenType.COMMA, "", True):
+                literal_list.append(self.parse_primary()) 
+            self.consume(tokens.TokenType.RIGHT_SQUARE, "Expected ']' following '['")
+            return expr.Literal(literal_list)
         else: 
+            literal_list = [i.value for i in literal_list]
             self.report(self.peek(), "expected expression!")
 
 

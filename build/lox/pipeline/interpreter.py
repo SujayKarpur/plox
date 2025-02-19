@@ -84,7 +84,13 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
     
 
     def visit_literal_expression(self, e : expr.Literal) -> str:
-        return e.value 
+        try:
+            new = []
+            for i in e.value:
+                new.append(self.evaluate(i))
+            return new
+        except:
+            return e.value 
 
 
     def visit_unary_expression(self, e : expr.Unary) -> str:

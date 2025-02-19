@@ -10,7 +10,11 @@ from lox import utils
 
 
 class Lexer: 
+    """
+    Implementation of a lexer/scanner for plox
 
+    Lexical Grammar:
+    """
 
     def __init__(self, string : str):
         self.position : int = 0
