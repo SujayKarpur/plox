@@ -176,16 +176,14 @@ class Parser:
             return stmt.While(condition, statement) 
         
         elif self.consume(tokens.TokenType.FOR, "", True):
-            print(self.peek(), self.peek_next())
             if self.consume(tokens.TokenType.EACH, "", True):
-                print('consumed each')
                 if (type(v := self.parse_primary()) == expr.Variable):
                     self.consume(tokens.TokenType.IN, "Expected keyword 'in' after for each ...") 
                     if type(w := self.parse_primary()) == expr.Variable: 
                         statement = self.parse_statement()
                         return stmt.ForEach(v,w,statement)
                 else:
-                    self.report(self.peek(), 'SKIBIDI ERROR')
+                    self.report(self.peek(), 'ParseSky ERROR')
 
             self.consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `for`!")
             if self.match(tokens.TokenType.VAR): 

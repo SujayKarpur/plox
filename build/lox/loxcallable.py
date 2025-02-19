@@ -1,10 +1,11 @@
-from typing import Protocol
+from typing import Protocol, List
 from functools import reduce 
 from time import time 
 
 from lox import utils 
 from lox import stmt, expr 
 from lox import environment
+
 
 class Return_Exception(Exception):
     def __init__(self, value=None):
@@ -23,7 +24,7 @@ class LoxCallable(Protocol):
 
 class Clock(LoxCallable):
 
-    def call(self, interpreter, arguments): 
+    def call(self, interpreter, arguments: List): 
         return float(time()) 
 
     def arity(self) -> int: 
@@ -66,6 +67,21 @@ class Print(LoxCallable):
 
     def __repr__(self) -> str: 
         return "<native fn print>"
+
+
+
+class ListInsert(LoxCallable):
+
+    def call(self, interpreter, arguments): 
+        l = arguments[0]
+        index = arguments[1]
+        value = arguments[2]
+
+    def arity(self) -> int: 
+        return 3
+
+    def __repr__(self) -> str: 
+        return "<native fn list_insert>"
 
 
 class Map(LoxCallable):
@@ -118,11 +134,12 @@ class Len(LoxCallable):
 
 class LoxFunction(LoxCallable):
 
-    def __init__(self, declaration : stmt.Function):
+    def __init__(self, declaration : stmt.Function, closure):
         self.declaration = declaration
+        self.closure = closure
 
     def call(self, interpreter, arguments): 
-        envy = environment.Environment(interpreter, interpreter.globals)
+        envy = environment.Environment(interpreter, self.closure)
         for i in range(len(self.declaration.params)):
             envy.define(self.declaration.params[i].name.value, arguments[i]) 
         try:

@@ -17,8 +17,10 @@ def run(string : str, interpreter_lox : interpreter.Interpreter) -> None:
     lexed_tokens = alex.lex()
 
     if lexed_tokens:
+        #print(lexed_tokens)
         happy = parser.Parser(lexed_tokens)
         new = happy.parse()
+        #print(new)
         if new: 
             try:
                 interpreter_lox.interpret(new)
@@ -26,3 +28,5 @@ def run(string : str, interpreter_lox : interpreter.Interpreter) -> None:
                 pass 
         else:
             print("no parse")
+    else:
+        print("no lex")

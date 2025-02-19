@@ -7,7 +7,7 @@ from lox import expr
 from lox import stmt 
 from lox import utils
 from lox import environment
-from lox.loxcallable import LoxCallable, Clock, Scan, Print, Len, LoxFunction, LoxLambda, Return_Exception
+from lox.loxcallable import Clock, Scan, Print, Len, LoxFunction, LoxLambda, Return_Exception
 
 
 
@@ -21,6 +21,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         self.globals = environment.Environment(self)
         self.environment = self.globals
         self.last_line = 1
+        self.foreach_count = 0
         self.last_executed_statement = None 
         self.globals.define('clock', Clock())
         self.globals.define('scan', Scan())
@@ -175,6 +176,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
             self.interpret(s.statement)
 
 
+
     def visit_for_statement(self, s : stmt.For):
         if isinstance(s.init, expr.Expr):
             s.init = stmt.Expression(s.init)
@@ -191,11 +193,15 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
 
     def visit_foreach_statement(self, s : stmt.ForEach):
-        init = stmt.Var(s.itervar, expr.Literal(0))
-        condition = expr.Binary(expr.Variable(s.itervar), tokens.TokenType.LESSER, expr.Call(Len(), s.listvar))
-        iter = (expr.Assignment(s.itervar, expr.Binary(expr.Variable(s.itervar), tokens.TokenType.PLUS, expr.Literal(1))))
-        desugar = stmt.For(init, condition, iter, s.statement)
+        varname = tokens.Token(tokens.TokenType.IDENTIFIER, '__RESERVED_FOR_EACH__VAR__'+str(self.foreach_count), 0,0,0)
+        self.foreach_count += 1 
+        init = stmt.Var(varname, expr.Literal(0))
+        condition = expr.Binary(expr.Variable(varname), tokens.Token(tokens.TokenType.LESSER,'',0,0,0), expr.Literal(len(self.evaluate(s.listvar))))
+        iter = stmt.Expression(expr.Assignment(expr.Variable(varname), expr.Binary(expr.Variable(varname), tokens.Token(tokens.TokenType.PLUS,'',0,0,0), expr.Literal(1))))
+        new_block_statement = stmt.Block([stmt.Var(s.itervar.name, expr.Index(s.listvar, expr.Variable(varname))), s.statement])
+        desugar = stmt.For(init, condition, iter, new_block_statement)
         self.interpret(desugar)
+        self.foreach_count -= 1 
         
 
     def visit_expression_statement(self, s : stmt.Expression):
@@ -217,7 +223,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
     def visit_function_statement(self, s : stmt.Function):
         
-        func : LoxFunction = LoxFunction(s)
+        func : LoxFunction = LoxFunction(s, self.environment)
         self.environment.define(s.name.value, func)
     
     def visit_return_statement(self, s : stmt.Return):
