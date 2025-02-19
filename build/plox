@@ -2,7 +2,8 @@
 
 
 import sys 
-from lox import run_prompt, run_script,state 
+from lox.run import run_prompt, run_script
+from lox import state 
 
 
 def main():

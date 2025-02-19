@@ -1,6 +1,7 @@
 import enum 
 import operator
 import typing 
+import dataclasses
 
 from lox import state 
 from lox import errors 
@@ -38,7 +39,7 @@ class TokenType(enum.Enum):
     IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*' 
     STRING = r'"([^\\\"]*(\\(\\|n|t|\"))?[^\\\"]*)+"' 
     NUMBER = r'[0-9]+(\.[0-9]+)?' 
-    #ARRAY = r''
+    #LIST = r''
 
     #keywords
     AND = r'and'
@@ -50,9 +51,7 @@ class TokenType(enum.Enum):
     IF = r'if' 
     NIL = r'nil' 
     OR = r'or'
-    #PRINT = r'print'
     RETURN = r'return'
-    #SCAN = r'scan'
     SUPER = r'super'
     THIS = r'this'
     TRUE = r'true' 
@@ -136,3 +135,5 @@ LITERAL_CONSTANTS = {
                     }
 
 IGNORED_TOKENS = {TokenType.COMMENT, TokenType.MULTI_LINE_COMMENT, TokenType.SPACE, TokenType.NEWLINE, TokenType.TAB}
+
+
