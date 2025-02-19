@@ -152,7 +152,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
         try:
             new = expr.ListExpr(callee[int(start) : int(stop) : int(step)])
-            return new.value 
+            return self.evaluate(new)
             print(new, new.value)
             return self.evaluate(new)
         except:
@@ -198,15 +198,6 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         self.interpret(desugar)
         
 
-    def visit_print_statement(self, s : stmt.Print):
-        print(utils.loxify(self.evaluate(s.expression))) 
-
-
-    def visit_scan_statement(self, s : stmt.Scan):
-        temp = input() #fix later; shouldn't be input, should lex/parse the string
-        self.environment.set(s.variable.name.value, temp)
-
-
     def visit_expression_statement(self, s : stmt.Expression):
         self.evaluate(s.expression) 
     
@@ -238,7 +229,10 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
     def visit_list_expression(self, e : expr.ListExpr):
         new = []
         for i in e.value:
-            new.append(self.evaluate(i))
+            try:
+                new.append(self.evaluate(i))
+            except:
+                new.append(i)
         return new 
     
     def visit_lambda_expression(self, e : expr.Lambda):

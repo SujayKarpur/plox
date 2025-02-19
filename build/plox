@@ -13,7 +13,7 @@ def main():
     elif len(sys.argv) == 2:
         run_script.run_script(sys.argv[1])
     else:
-        print('usage : plox [script]')
+        print('usage : plox [script.lox] [--debug] [--optimize] [--time]')
         sys.exit() 
 
 
