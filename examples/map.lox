@@ -1,0 +1,7 @@
+fun map(function, iterable)
+{
+    for (var i=0; i<len(iterable); i=i+1)
+        iterable[i] = function(iterable[i]); 
+    return iterable;
+}
+
