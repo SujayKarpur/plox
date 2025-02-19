@@ -283,7 +283,24 @@ class Parser:
                     if self.match(tokens.TokenType.RIGHT_PAREN):
                         break  
         else:
-            return callee 
+            while self.consume(tokens.TokenType.LEFT_SQUARE, "", True):
+                index = self.parse_expression()
+                if self.consume(tokens.TokenType.COLON, "", True):
+                    stop = self.parse_expression()
+                    if self.consume(tokens.TokenType.COLON, "", True):
+                        step = self.parse_expression
+                    else:
+                        step = expr.Literal(1) 
+                    callee = expr.Slice(callee, index, stop, step)
+                self.consume(tokens.TokenType.RIGHT_SQUARE, "Expected matching ']'!")
+                if self.match(tokens.TokenType.SEMICOLON):
+                    break  
+                callee = expr.Index(callee, index)
+            else:
+                return callee 
+            if type(callee) == expr.Slice:
+                return callee
+            return expr.Index(callee, index)
         self.consume(tokens.TokenType.RIGHT_PAREN, "Expected matching ')'!")
         return expr.Call(callee, expression_list)
 
@@ -305,7 +322,7 @@ class Parser:
             while self.consume(tokens.TokenType.COMMA, "", True):
                 literal_list.append(self.parse_primary()) 
             self.consume(tokens.TokenType.RIGHT_SQUARE, "Expected ']' following '['")
-            return expr.Literal(literal_list)
+            return expr.ListExpr(literal_list)
         else: 
             literal_list = [i.value for i in literal_list]
             self.report(self.peek(), "expected expression!")

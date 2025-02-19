@@ -84,13 +84,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
     
 
     def visit_literal_expression(self, e : expr.Literal) -> str:
-        try:
-            new = []
-            for i in e.value:
-                new.append(self.evaluate(i))
-            return new
-        except:
-            return e.value 
+        return e.value
 
 
     def visit_unary_expression(self, e : expr.Unary) -> str:
@@ -129,7 +123,29 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         if not isinstance(callee, Print) and len(arguments) != callee.arity():
             self.report(f"The function expected {callee.arity()} arguments but received {len(arguments)} arguments")
         return callee.call(self, arguments)
+    
+    def visit_index_expression(self, e : expr.Index):
+        callee = self.evaluate(e.list)
+        index = self.evaluate(e.index)
 
+        try:
+            return callee[int(index)]
+        except:
+            self.report("Couldn't perform indexing")
+
+    def visit_slice_expression(self, e : expr.Slice):
+        callee = self.evaluate(e.list)
+        start = self.evaluate(e.start)
+        stop = self.evaluate(e.stop)
+        step = self.evaluate(e.step)
+
+        try:
+            new = expr.ListExpr(callee[int(start) : int(stop) : int(step)])
+            return new.value 
+            print(new, new.value)
+            return self.evaluate(new)
+        except:
+            self.report("can't slice dat")
 
     def visit_block_statement(self, s : stmt.Block):
         self.execute_block(s.statements, environment.Environment(self, self.environment))
@@ -199,3 +215,10 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         if s.value: 
             value = self.evaluate(s.value)
         raise Return_Exception(value)
+    
+    def visit_list_expression(self, e : expr.ListExpr):
+        new = []
+        print(e.value)
+        for i in e.value:
+            new.append(self.evaluate(i))
+        return new 

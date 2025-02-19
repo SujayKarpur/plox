@@ -35,6 +35,14 @@ class Visitor(Protocol[R]):
     def visit_assignment_expression(self, expr : 'Assignment') -> R:
         pass 
 
+    def visit_index_expression(self, expr : 'Index') -> R:
+        pass 
+    
+    def visit_slice_expression(self, expr : 'Slice') -> R:
+        pass 
+
+    def visit_list_expression(self, expr : 'ListExpr') -> R:
+        pass 
 
 class Expr(ABC): 
     
@@ -58,6 +66,24 @@ class Call(Expr):
 
     def accept(self, visitor : Visitor[R]) -> R: 
         return visitor.visit_call_expression(self)
+
+@dataclass
+class Index(Expr):
+    list : Expr 
+    index : Expr 
+
+    def accept(self, visitor : Visitor[R]) -> R:
+        return visitor.visit_index_expression(self)
+
+@dataclass
+class Slice(Expr):
+    list : Expr 
+    start : Expr 
+    stop : Expr 
+    step : Expr 
+
+    def accept(self, visitor : Visitor[R]) -> R:
+        return visitor.visit_slice_expression(self)
 
 @dataclass
 class Logical(Expr):
@@ -104,3 +130,11 @@ class Assignment(Expr):
 
     def accept(self, visitor: Visitor[R]) -> R:
         return visitor.visit_assignment_expression(self)
+    
+
+@dataclass
+class ListExpr(Expr):
+    value : List 
+
+    def accept(self, visitor: Visitor[R]) -> R:
+        return visitor.visit_list_expression(self)

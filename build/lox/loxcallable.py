@@ -1,4 +1,5 @@
 from typing import Protocol
+from functools import reduce 
 from time import time 
 
 from lox import utils 
@@ -65,7 +66,42 @@ class Print(LoxCallable):
 
     def __repr__(self) -> str: 
         return "<native fn print>"
+
+
+class Map(LoxCallable):
+
+    def call(self, interpreter, arguments):
+        pass 
+
+    def arity(self) -> int: 
+        return 2 
     
+    def __repr__(self) -> str:
+        return "<native fn map>"
+    
+
+class Filter(LoxCallable):
+
+    def call(self, interpreter, arguments):
+        pass 
+
+    def arity(self) -> int: 
+        return 2 
+    
+    def __repr__(self) -> str:
+        return "<native fn filter>"
+
+
+class Reduce(LoxCallable):
+
+    def call(self, interpreter, arguments):
+        pass 
+
+    def arity(self) -> int: 
+        return 2 
+    
+    def __repr__(self) -> str:
+        return "<native fn reduce>"
 
 
 class LoxFunction(LoxCallable):
