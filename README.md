@@ -33,6 +33,7 @@ Lox (from the book Crafting Interpreters) is a dynamically typed, high level scr
 
 This project is a treewalk interpreter for my version of Lox, with a handcrafted lexer and recursive descent parser.  
 
+![Plox in action](./assets/images/REPL_fibonacci.png)
 
 ## Interface 
 ### REPL
