@@ -7,7 +7,7 @@ from lox import expr
 from lox import stmt 
 from lox import utils
 from lox import environment
-from lox.loxcallable import Clock, Scan, Print, Len, LoxFunction, LoxLambda, Return_Exception
+from lox.loxcallable import Clock, Scan, Print, Len, LoxFunction, LoxLambda, Return_Exception, Printf 
 
 
 
@@ -27,6 +27,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         self.globals.define('scan', Scan())
         self.globals.define('print', Print())
         self.globals.define('len', Len())
+        self.globals.define('printf', Printf())
 
     def interpret(self, statements : Union[List[stmt.Stmt],stmt.Stmt]) -> None:
         if type(statements) == list:
@@ -132,7 +133,7 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         if not hasattr(callee, "call"):
             self.report("can't call a non-callable object")
 
-        if not isinstance(callee, Print) and len(arguments) != callee.arity():
+        if not (isinstance(callee, Print) or isinstance(callee, Printf)) and len(arguments) != callee.arity():
             self.report(f"The function expected {callee.arity()} arguments but received {len(arguments)} arguments")
         return callee.call(self, arguments)
     

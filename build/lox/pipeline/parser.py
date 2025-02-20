@@ -234,7 +234,7 @@ class Parser:
                 return expr.Assignment(name, value) 
             else: 
                 self.position -= 1
-                return self.parse_equality()
+                return self.parse_anon_function()
         else:
             return self.parse_anon_function()
 
@@ -258,7 +258,6 @@ class Parser:
 
         self.consume(tokens.TokenType.EQUAL, "Expected '=' after anonymous function!")
         self.consume(tokens.TokenType.GREATER, "Expected '>' after anonymous function!")
-        
         e = self.parse_expression()
         return expr.Lambda(parameter_list, e)
     
@@ -266,9 +265,9 @@ class Parser:
     def parse_ternary(self):
         if_true = self.parse_logic_or() 
         if self.consume(tokens.TokenType.IF, "", True):
-            condition = self.parse_logic_or()
+            condition = self.parse_expression()
             if self.consume(tokens.TokenType.ELSE, "", True):
-                if_not = self.parse_logic_or()
+                if_not = self.parse_expression()
             else:
                 if_not = expr.Literal(None)
             return expr.Ternary(condition, if_true, if_not)

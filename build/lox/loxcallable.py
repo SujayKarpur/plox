@@ -69,6 +69,33 @@ class Print(LoxCallable):
         return "<native fn print>"
 
 
+class Printf(LoxCallable):
+
+    def call(self, interpreter, arguments): 
+        arguments = [utils.loxify(x) for x in arguments]
+        format_string = arguments.pop(0)
+        format_string = format_string.replace("\\n", "\n").replace("\\t", "\t")
+        for i in range(len(format_string)):
+            if i >0 and format_string[i-1] == '%':
+                continue 
+            if format_string[i] == '%':
+                if format_string[i+1] == '%':
+                    print('%', end='')
+                elif format_string[i+1] == 'd':
+                    print(int(arguments.pop(0)), end='')
+                elif format_string[i+1] == 'f':
+                    print(float(arguments.pop(0)), end='')
+                else:
+                    print(arguments.pop(0), end='')
+            else:
+                print(format_string[i], end='')
+
+    def arity(self) -> int: 
+        return 1  
+
+    def __repr__(self) -> str: 
+        return "<native fn printf>"
+
 
 class ListInsert(LoxCallable):
 
