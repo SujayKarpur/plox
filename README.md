@@ -1,15 +1,61 @@
 # plox
 python implementation of the [Lox](https://craftinginterpreters.com/the-lox-language.html) programming language 
 
-## usage
+
+## Usage
+
+Clone the repository 
 ```sh
-$ plox [script]
+$ git clone https://github.com/SujayKarpur/plox.git
+$ cd plox
 ```
 
-## About 
-Lox (from the book Crafting Interpreters) is a dynamically typed scripting language designed to be easy to understand and implement.  
+Set up and activate a python virtual environment 
+```sh
+$ python3 -m venv venv
+$ source venv/bin/activate
+```
 
-This project is a treewalk interpreter for Lox, with a handcrafted lexer and recursive descent parser.  
+Execute the build script
+```sh
+$ ./build/build.sh
+```
+
+
+Run plox in the desired mode
+```sh
+$ plox [script] [--debug] [--optimize] [--time]
+```
+
+
+## About 
+Lox (from the book Crafting Interpreters) is a dynamically typed, high level scripting language designed to be easy to understand and implement.  
+
+This project is a treewalk interpreter for my version of Lox, with a handcrafted lexer and recursive descent parser.  
+
+
+## Interface 
+### REPL
+
+### Script
+### Interpreter Flags 
+
+
+## Implementation
+
+### Lexical Grammar
+### Syntactic Grammar
+### Interpreter Architecture
+### Types
+### Lexing
+### Parsing
+### AST 
+### Interpreter
+### State and Environment
+### Control Flow 
+### Functional Constructs
+
+
 
 ## References
 [Crafting Interpreters](https://craftinginterpreters.com/)  
@@ -17,14 +63,23 @@ This project is a treewalk interpreter for Lox, with a handcrafted lexer and rec
 [PLY documentation](https://www.dabeaz.com/ply/ply.html)  
 
 ## Current Status
-plox takes in input from the user (either line by line or as a single script) and prints the array of tokens produced after lexing, along with any lexer errors.
-If the program consists of only an expression, the expression is parsed and evaluated.
+
 
 ## To Do
-- [ ] Improve Lexer error handling (print line containing error and show column)
-- [ ] Handle syntax errors
-- [ ] Handle runtime errors
-- [ ] Add support for ternary operator
-- [ ] Add support for non-expression statements
-- [ ] Add documentation and usage instructions
-- [ ] Add constructs for functions and classes
+- [ ] Improve runtime error handling (print line containing error and show column)
+- [ ] Finish README
+- [ ] Make list indices lvalues, ie support statements like `variable[i] = value;`
+- [ ] Improve documentation and readability 
+- [ ] Add functional programming constructs like decorators, generators, and pattern matching
+- [ ] Implement a way to import and reuse code across different plox scripts & add a standard library
+
+
+
+## Takeaways
+
+### Design Patterns
+### Visitor Pattern 
+### Global State 
+### Static vs Dynamic Typing 
+### 
+
