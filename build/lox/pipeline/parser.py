@@ -242,7 +242,8 @@ class Parser:
     def parse_anon_function(self):
 
         if not self.consume(tokens.TokenType.FUN, "", True):
-            return self.parse_logic_or()
+            #return self.parse_logic_or()
+            return self.parse_ternary()
         
         self.consume(tokens.TokenType.LEFT_PAREN, "Expected '(' after `fun` !")
 
@@ -260,6 +261,19 @@ class Parser:
         
         e = self.parse_expression()
         return expr.Lambda(parameter_list, e)
+    
+
+    def parse_ternary(self):
+        if_true = self.parse_logic_or() 
+        if self.consume(tokens.TokenType.IF, "", True):
+            condition = self.parse_logic_or()
+            if self.consume(tokens.TokenType.ELSE, "", True):
+                if_not = self.parse_logic_or()
+            else:
+                if_not = expr.Literal(None)
+            return expr.Ternary(condition, if_true, if_not)
+        else:
+            return if_true
 
 
     def parse_logic_or(self) -> expr.Expr:
@@ -363,7 +377,7 @@ class Parser:
         elif (literal := self.consume(tokens.LITERAL_OBJECTS, "", True)):
             return expr.Literal(literal.value)
         elif (literal := self.consume(tokens.LITERAL_CONSTANTS, "", True)):
-            return expr.Literal(tokens.LITERAL_CONSTANTS[literal])
+            return expr.Literal(tokens.LITERAL_CONSTANTS[literal.type])
         elif self.consume(tokens.TokenType.LEFT_PAREN, "", True):
             temp = self.parse_expression()
             self.consume(tokens.TokenType.RIGHT_PAREN, "Expected ')' following '('")

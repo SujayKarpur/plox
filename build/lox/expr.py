@@ -47,6 +47,10 @@ class Visitor(Protocol[R]):
     def visit_lambda_expression(self, expr : 'Lambda') -> R:
         pass 
 
+    def visit_ternary_expression(self, expr : 'Ternary') -> R:
+        pass 
+    
+
 class Expr(ABC): 
     
     @abstractmethod
@@ -150,3 +154,13 @@ class Lambda(Expr):
 
     def accept(self, visitor: Visitor[R]) -> R:
         return visitor.visit_lambda_expression(self)
+
+
+@dataclass
+class Ternary(Expr):
+    condition : Expr 
+    if_condition : Expr 
+    else_condition : Expr 
+
+    def accept(self, visitor : Visitor[R]) -> R:
+        return visitor.visit_ternary_expression(self)

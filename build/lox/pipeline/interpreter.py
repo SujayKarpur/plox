@@ -244,3 +244,6 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
     def visit_lambda_expression(self, e : expr.Lambda):
         return LoxLambda(e)
     
+
+    def visit_ternary_expression(self, e : expr.Ternary):
+        return self.evaluate(e.if_condition) if self.evaluate(e.condition) else self.evaluate(e.else_condition)
