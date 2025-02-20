@@ -1,56 +1,43 @@
 #!/bin/bash
+set -e  # Exit on any error
 
-# Exit on any error
-set -e
+# Determine the directory where the script resides (plox/build)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# Check if Python is installed
-if ! command -v python3 &> /dev/null
-then
-    echo "Python is not installed. Please install Python 3."
+# Check if required files exist in the SCRIPT_DIR
+REQUIRED_FILES=("requirements.txt" "setup.py" "plox")
+for file in "${REQUIRED_FILES[@]}"; do
+    if [ ! -f "$SCRIPT_DIR/$file" ]; then
+        echo "Error: $file not found in $SCRIPT_DIR. Please ensure you're in the correct directory."
+        exit 1
+    fi
+done
+
+# Check if a virtual environment is active
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo "Error: No active virtual environment found. Please activate one before running this script."
     exit 1
 fi
 
-# Check if pip is installed
-if ! command -v pip &> /dev/null
-then
-    echo "pip is not installed. Installing pip..."
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-    python3 get-pip.py
-    rm get-pip.py
-fi
-
-# Set the project directory
-PROJECT_DIR="$(pwd)"
-
-# Create the virtual environment inside the build folder if it doesn't exist
-VENV_DIR="$PROJECT_DIR/build/venv"
-if [ ! -d "$VENV_DIR" ]; then
-    echo "Creating virtual environment..."
-    python3 -m venv "$VENV_DIR"
-fi
-
-# Activate the virtual environment
-source "$VENV_DIR/bin/activate"
+echo "Using virtual environment: $VIRTUAL_ENV"
+echo "Project root: $PROJECT_ROOT"
+echo "Build directory: $SCRIPT_DIR"
 
 # Install dependencies from requirements.txt
-if [ -f "$PROJECT_DIR/build/requirements.txt" ]; then
-    echo "Installing dependencies from requirements.txt..."
-    pip install -r "$PROJECT_DIR/build/requirements.txt"
-else
-    echo "No requirements.txt found. Skipping dependency installation."
-fi
+echo "Installing dependencies from requirements.txt..."
+pip install -r "$SCRIPT_DIR/requirements.txt"
 
-# Install the project in editable mode
-echo "Installing the project in editable mode..."
-pip install -e "$PROJECT_DIR/build/."
+# Build and install the package
+echo "Building and installing the package via setup.py..."
+cd "$SCRIPT_DIR"
+python setup.py install
 
-# Make the plox executable available globally by linking it
-echo "Creating executable for plox..."
-ln -s "$PROJECT_DIR/build/plox" /usr/local/bin/plox
+# Give execution permissions to the plox executable
+echo "Setting executable permissions for plox..."
+chmod +x "$SCRIPT_DIR/plox"
 
-# Add build to the PATH permanently by modifying the bashrc
-echo "export PATH=\$PATH:$PROJECT_DIR/build" >> ~/.bashrc
-source ~/.bashrc
-
-# Success message
-echo "Setup complete! You can now run 'plox' from anywhere."
+echo "Build complete. You can now run the executable with:"
+echo "  $SCRIPT_DIR/plox"
+echo "Or, if you're in the build directory, simply:"
+echo "  ./plox"
