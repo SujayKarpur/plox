@@ -48,6 +48,9 @@ class Visitor(Protocol[R]):
     def visit_foreach_statement(self, stmt : 'ForEach') -> R:
         pass 
 
+    def visit_decorator_statement(self, stmt : 'Decorator') -> R:
+        pass 
+
 
 class Stmt(ABC):
 
@@ -150,3 +153,12 @@ class Return(Stmt):
 
     def accept(self, visitor : Visitor[R]):
         return visitor.visit_return_statement(self)
+
+
+@dataclass
+class Decorator(Stmt):
+    decorator : expr.Expr 
+    function : Function
+
+    def accept(self, visitor : Visitor[R]):
+        return visitor.visit_decorator_statement(self) 

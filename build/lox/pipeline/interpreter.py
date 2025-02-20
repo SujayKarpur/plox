@@ -110,6 +110,8 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
                 return -rhs
             else: 
                 self.report("Can't negate a non-numeric value!")
+        elif e.operator.type == tokens.TokenType.AT:
+            pass 
         else: 
             return None 
     
@@ -248,3 +250,11 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
 
     def visit_ternary_expression(self, e : expr.Ternary):
         return self.evaluate(e.if_condition) if self.evaluate(e.condition) else self.evaluate(e.else_condition)
+    
+    def visit_decorator_statement(self, s : stmt.Decorator):
+        fun = expr.Call(s.decorator, [s.function])
+        fun = stmt.Function(s.function.name, s.function.params,[stmt.Expression(expr.Call(fun, s.function.params))])
+        func : LoxFunction = LoxFunction(fun, self.environment)
+        print('bye what', func, fun)    
+        self.environment.define(s.function.name.value, func)
+        print('hi what', s.function.name.value)

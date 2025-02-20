@@ -38,6 +38,8 @@ class TokenType(enum.Enum):
     LESSER = r'<'
     QUESTION = r'\?'
     COLON = r':'
+    DOTDOT = r'\.\.'
+    AT = r'@'
 
     #literals/identifiers
     IDENTIFIER = r'[a-zA-Z_][a-zA-Z0-9_]*' 
@@ -116,7 +118,8 @@ OPERATIONS = {
 
 UNARY_OPERATORS = {
             TokenType.MINUS,
-            TokenType.BANG
+            TokenType.BANG,
+            #TokenType.AT
         }
 
 EQUALITY_OPERATORS = {

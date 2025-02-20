@@ -121,6 +121,12 @@ class Parser:
                 return self.parse_function()
             else:
                 return self.parse_expression()
+        
+        elif self.consume(tokens.TokenType.AT, "", True):
+            v = self.parse_expression()
+            f = self.parse_declaration()
+            return stmt.Decorator(v,f)
+
         else: 
             return self.parse_statement()
 
@@ -324,12 +330,18 @@ class Parser:
 
 
     def parse_unary(self) -> expr.Expr:
-        """unary -> !unary | -unary | call"""
+        """unary -> !unary | -unary | @unary | call"""
 
         if (operator := self.consume(tokens.UNARY_OPERATORS, "", True)):
             return expr.Unary(operator, self.parse_unary()) 
         else: 
-            return self.parse_call() 
+            return self.parse_call()
+
+
+    def parse_at_deco(self):
+        if not self.consume(tokens.TokenType.AT, "", True):
+            return self.parse_call()
+        return #stmt
 
 
     def parse_call(self):
