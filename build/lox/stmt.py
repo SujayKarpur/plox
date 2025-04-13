@@ -24,12 +24,6 @@ class Visitor(Protocol[R]):
     def visit_for_statement(self, stmt : 'For') -> R: 
         pass 
 
-    def visit_print_statement(self, stmt : 'Print') -> R: #forward references
-        pass 
-
-    def visit_scan_statement(self, stmt : 'Scan') -> R: 
-        pass 
-
     def visit_expression_statement(self, stmt : 'Expression') -> R:
         pass  
 
@@ -102,19 +96,6 @@ class ForEach(Stmt):
     def accept(self, visitor: Visitor[R]):
         return visitor.visit_foreach_statement(self) 
 
-@dataclass
-class Print(Stmt): 
-    expression : expr.Expr
-
-    def accept(self, visitor: Visitor[R]):
-        return visitor.visit_print_statement(self)
-
-@dataclass
-class Scan(Stmt): 
-    variable : expr.Variable
-
-    def accept(self, visitor: Visitor[R]):
-        return visitor.visit_scan_statement(self)
 
 @dataclass
 class Expression(Stmt):

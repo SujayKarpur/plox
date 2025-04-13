@@ -74,11 +74,13 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         state.error_flag = True 
         sys.exit()
 
-
     def visit_binary_expression(self, e : expr.Binary) -> str: 
         left = self.evaluate(e.left)
         right = self.evaluate(e.right)
         return tokens.OPERATIONS[e.operator.type](left,right)
+
+    """
+    """
 
 
     def visit_logical_expression(self, e : expr.Logical):
@@ -255,6 +257,4 @@ class Interpreter(expr.Visitor[Any], stmt.Visitor[Any]):
         fun = expr.Call(s.decorator, [s.function])
         fun = stmt.Function(s.function.name, s.function.params,[stmt.Expression(expr.Call(fun, s.function.params))])
         func : LoxFunction = LoxFunction(fun, self.environment)
-        print('bye what', func, fun)    
         self.environment.define(s.function.name.value, func)
-        print('hi what', s.function.name.value)
